@@ -7,7 +7,7 @@ public class Program
     {
         var parseResult = CommandParser.Parse(args);
 
-        if (!parseResult.Successed)
+        if (!parseResult.IsSuccess)
         {
             foreach (var error in parseResult.Errors)
                 Console.Error.WriteLine(error);
@@ -15,8 +15,7 @@ public class Program
             return (int)ExitCode.InvalidInput;
         }
 
-        var options = parseResult.ToAnalysisOptions();
-        var analyzer = new NginxLogAnalyzer(options);
+        var analyzer = new NginxLogAnalyzer(parseResult.Options!);
 
         return (int)ExitCode.Success;
     }

@@ -2,13 +2,9 @@
 
 namespace IncidentRadar.App.CLI;
 
-public class ParseResult
+public record ParseResult(
+    AnalysisOptions? Options, 
+    IReadOnlyList<string> Errors)
 {
-    public bool Successed { get; private set; }
-    public List<string> Errors { get; init; }
-
-    public AnalysisOptions ToAnalysisOptions()
-    {
-        throw new NotImplementedException();
-    }
+    public bool IsSuccess => Errors.Count == 0;
 }
