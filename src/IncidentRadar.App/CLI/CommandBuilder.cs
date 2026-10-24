@@ -2,7 +2,7 @@
 
 namespace IncidentRadar.App.CLI;
 
-public static class CommandFactory
+public static class CommandBuilder
 {
     public static RootCommand CreateRoot()
     {
