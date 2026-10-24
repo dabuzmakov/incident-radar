@@ -1,4 +1,4 @@
-﻿namespace IncidentRadar.App.CLI;
+﻿namespace IncidentRadar.App.Analysis;
 
 public record AnalysisOptions(
     string Path,
