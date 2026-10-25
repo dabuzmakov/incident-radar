@@ -1,23 +1,42 @@
-﻿namespace IncidentRadar.App.Sources;
+﻿using IncidentRadar.App.Exceptions;
+
+namespace IncidentRadar.App.Sources;
 
 public class SourceReader
 {
-    private readonly SourceResolver _resolver;
+    private readonly IReadOnlyList<LogSource> _sources;
 
-    public SourceReader(SourceResolver resolver)
+    public SourceReader(IReadOnlyList<LogSource> sources)
     {
-        _resolver = resolver;
+        _sources = sources;
     }
 
     public async IAsyncEnumerable<string> ReadAsync()
     {
-        foreach (var source in _resolver.Sources)
+        foreach (var source in _sources)
         {
-            using var stream = await _resolver.OpenAsync(source);
-            using var reader = new StreamReader(stream);    
+            using var stream = await SourceResolver.OpenAsync(source);
+            using var reader = new StreamReader(stream);
 
-            while (await reader.ReadLineAsync() is string line)
+            while (true)
+            {
+                string? line;
+
+                try 
+                { 
+                    line = await reader.ReadLineAsync(); 
+                }
+                catch (Exception exception)
+                {
+                    throw new SourceException(
+                        $"Не удалось прочитать источник {source.Path}", exception);
+                }
+
+                if (line is null) 
+                    break;
+
                 yield return line;
+            }
         }
     }
 }

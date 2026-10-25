@@ -1,5 +1,6 @@
 using IncidentRadar.App.Analysis;
 using IncidentRadar.App.CLI;
+using IncidentRadar.App.Exceptions;
 
 public class Program
 {
@@ -15,10 +16,27 @@ public class Program
             return (int)ExitCode.InvalidInput;
         }
 
-        var analyzer = new LogAnalyzer(parseResult.Options!);
-        var statistics = await analyzer.AnalyzeAsync();
+        try
+        {
+            var analyzer = new LogAnalyzer(parseResult.Options!);
+            var statistics = await analyzer.AnalyzeAsync();
 
-        Console.WriteLine(statistics);
-        return (int)ExitCode.Success;
+            Console.WriteLine($"Прочитано строк: {statistics.TotalRead}");
+
+            foreach (var source in statistics.Sources)
+                Console.WriteLine($"Источник: {source.Path}");
+
+            return (int)ExitCode.Success;
+        }
+        catch (SourceException exeption)
+        {
+            Console.Error.WriteLine($"Ошибка источника: {exeption.Message}");
+            return (int)ExitCode.InvalidInput;
+        }
+        catch (Exception exeption)
+        {
+            Console.Error.WriteLine($"Внутренняя ошибка: {exeption.Message}");
+            return (int)ExitCode.InternalError;
+        }
     }
 }

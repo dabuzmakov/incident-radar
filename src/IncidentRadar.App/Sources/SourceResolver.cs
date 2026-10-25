@@ -1,39 +1,50 @@
-﻿namespace IncidentRadar.App.Sources;
+﻿using IncidentRadar.App.Exceptions;
 
-public class SourceResolver
+namespace IncidentRadar.App.Sources;
+
+public static class SourceResolver
 {
-    public IReadOnlyList<LogSource> Sources { get; }
     private static readonly HttpClient _httpClient = new();
-    private readonly HashSet<string> _supportedExtensions =
+    private static readonly HashSet<string> _supportedExtensions =
         new(StringComparer.OrdinalIgnoreCase) { ".log", ".txt" };
 
-    public SourceResolver(string path)
+    public static IReadOnlyList<LogSource> GetSources(string path)
     {
-        Sources = GetSources(path);
-    }
-
-    public async Task<Stream> OpenAsync(LogSource source)
-    {
-        return source.Type switch
+        try
         {
-            SourceType.File => File.OpenRead(source.Path),
-            SourceType.Url => await _httpClient.GetStreamAsync(source.Path),
-            _ => throw new ArgumentOutOfRangeException(nameof(source.Type))
-        };
+            if (IsUrl(path))
+                return ResolveUrl(path);
+
+            if (IsGlob(path))
+                return ResolveGlob(path);
+
+            return ResolveFile(path);
+        }
+        catch (Exception exception)
+        {
+            throw new SourceException(exception.Message, exception);
+        }
     }
 
-    private IReadOnlyList<LogSource> GetSources(string path)
+    public static async Task<Stream> OpenAsync(LogSource source)
     {
-        if (IsUrl(path))
-            return ResolveUrl(path);
-
-        if (IsGlob(path))
-            return ResolveGlob(path);
-
-        return ResolveFile(path);
+        try
+        {
+            return source.Type switch
+            {
+                SourceType.File => File.OpenRead(source.Path),
+                SourceType.Url => await _httpClient.GetStreamAsync(source.Path),
+                _ => throw new ArgumentOutOfRangeException(nameof(source.Type))
+            };
+        }
+        catch (Exception exception)
+        {
+            throw new SourceException(
+                $"Не удалось открыть источник {source.Path}", exception);
+        }
     }
 
-    private IReadOnlyList<LogSource> ResolveUrl(string path)
+    private static IReadOnlyList<LogSource> ResolveUrl(string path)
     {
         if (!Uri.TryCreate(path, UriKind.Absolute, out var uri) ||
             (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps) ||
@@ -43,7 +54,7 @@ public class SourceResolver
         return [new LogSource(path, SourceType.Url)];
     }
 
-    private IReadOnlyList<LogSource> ResolveGlob(string path)
+    private static IReadOnlyList<LogSource> ResolveGlob(string path)
     {
         var directory = Path.GetDirectoryName(path);
 
@@ -61,12 +72,12 @@ public class SourceResolver
             .ToArray();
 
         if (sources.Length == 0)
-            throw new FileNotFoundException($"По маске не найдены файлы: {path}");
+            throw new FileNotFoundException($"По маске не найдены поддерживаемые файлы (.log, .txt): {path}");
 
         return sources;
     }
 
-    private IReadOnlyList<LogSource> ResolveFile(string path)
+    private static IReadOnlyList<LogSource> ResolveFile(string path)
     {
         var fullPath = Path.GetFullPath(path);
 
@@ -79,13 +90,13 @@ public class SourceResolver
         return [new LogSource(fullPath, SourceType.File)];
     }
 
-    private bool IsUrl(string path)
+    private static bool IsUrl(string path)
         => path.StartsWith("http:", StringComparison.OrdinalIgnoreCase) || 
            path.StartsWith("https:", StringComparison.OrdinalIgnoreCase);
 
-    private bool IsGlob(string path)
+    private static bool IsGlob(string path)
         => path.Contains('*') || path.Contains('?');
 
-    private bool IsSupportedFile(string path)
+    private static bool IsSupportedFile(string path)
         => _supportedExtensions.Contains(Path.GetExtension(path));
 }

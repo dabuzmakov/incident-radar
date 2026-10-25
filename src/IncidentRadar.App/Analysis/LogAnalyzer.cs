@@ -13,8 +13,8 @@ public class LogAnalyzer
 
     public async Task<AnalysisStatistics> AnalyzeAsync()
     {
-        var resolver = new SourceResolver(_options.Path);
-        var reader = new SourceReader(resolver);
+        var sources = SourceResolver.GetSources(_options.Path);
+        var reader = new SourceReader(sources);
 
         var totalRead = 0;
 
@@ -25,7 +25,7 @@ public class LogAnalyzer
 
         return new AnalysisStatistics
         (
-            Sources: resolver.Sources,
+            Sources: sources,
             TotalRead: totalRead
         );
     }
