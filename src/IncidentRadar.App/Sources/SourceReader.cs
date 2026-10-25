@@ -11,7 +11,7 @@ public class SourceReader
 
     public async IAsyncEnumerable<string> ReadAsync()
     {
-        foreach (var source in _resolver.GetSources())
+        foreach (var source in _resolver.Sources)
         {
             using var stream = await _resolver.OpenAsync(source);
             using var reader = new StreamReader(stream);    

@@ -16,7 +16,9 @@ public class Program
         }
 
         var analyzer = new LogAnalyzer(parseResult.Options!);
+        var statistics = await analyzer.AnalyzeAsync();
 
+        Console.WriteLine(statistics);
         return (int)ExitCode.Success;
     }
 }

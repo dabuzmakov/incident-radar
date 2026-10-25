@@ -11,9 +11,22 @@ public class LogAnalyzer
         _options = options;
     }
 
-    public async Task AnalyzeAsync()
+    public async Task<AnalysisStatistics> AnalyzeAsync()
     {
         var resolver = new SourceResolver(_options.Path);
-        var reader = new SourceReader(resolver.GetSources());
+        var reader = new SourceReader(resolver);
+
+        var totalRead = 0;
+
+        await foreach (var line in reader.ReadAsync())
+        {
+            totalRead++;
+        }
+
+        return new AnalysisStatistics
+        (
+            Sources: resolver.Sources,
+            TotalRead: totalRead
+        );
     }
 }
