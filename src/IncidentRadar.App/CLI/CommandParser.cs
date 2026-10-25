@@ -5,12 +5,6 @@ namespace IncidentRadar.App.CLI;
 
 public static class CommandParser
 {
-    private static Dictionary<string, string> _supportedFormats = new() 
-    { 
-        ["json"] = ".json",
-        ["markdown"] = ".md" 
-    };
-
     private static HashSet<string> _knownOptions = new()
     {
         "--path",
@@ -25,6 +19,12 @@ public static class CommandParser
         ["-p"] = "--path",
         ["-f"] = "--output-format",
         ["-o"] = "--output-path"
+    };
+
+    private static Dictionary<string, string> _supportedFormats = new()
+    {
+        ["json"] = ".json",
+        ["markdown"] = ".md"
     };
 
     public static ParseResult Parse(string[] args)

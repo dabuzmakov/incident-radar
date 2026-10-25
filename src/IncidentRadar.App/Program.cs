@@ -15,7 +15,7 @@ public class Program
             return (int)ExitCode.InvalidInput;
         }
 
-        var analyzer = new NginxLogAnalyzer(parseResult.Options!);
+        var analyzer = new LogAnalyzer(parseResult.Options!);
 
         return (int)ExitCode.Success;
     }
