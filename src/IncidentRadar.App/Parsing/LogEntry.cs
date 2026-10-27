@@ -8,6 +8,20 @@ public record LogEntry(
     DateTimeOffset TimeLocal,
     HttpRequest Request,
     HttpStatusCode HttpStatus,
-    long ResponseBytes,
+    long ResponseSize,
     string? Referer,
-    string? UserAgent);
+    string? UserAgent)
+{
+    public bool InBounds(DateOnly? fromDate, DateOnly? toDate)
+    {
+        var logDate = DateOnly.FromDateTime(TimeLocal.DateTime);
+
+        if (fromDate is { } from && logDate < from)
+            return false;
+
+        if (toDate is { } to && logDate > to)
+            return false;
+
+        return true;
+    }
+}

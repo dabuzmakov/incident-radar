@@ -14,9 +14,9 @@ public static class LogParser
     private static readonly Regex _protocolRegex =
         new(@"^HTTP/[0-9]+\.[0-9]+$", RegexOptions.Compiled);
 
-    public static bool TryParse(string line, out LogEntry? entry)
+    public static bool TryParse(string line, out LogEntry entry)
     {
-        entry = null;
+        entry = null!;
         var match = _regex.Match(line);
 
         if (!match.Success) return false;
@@ -43,7 +43,7 @@ public static class LogParser
             TimeLocal: timestamp,
             Request: request,
             HttpStatus: (HttpStatusCode)status,
-            ResponseBytes: bytes,
+            ResponseSize: bytes,
             Referer: NullIfDash(match.Groups["referer"].Value),
             UserAgent: NullIfDash(match.Groups["agent"].Value)
         );

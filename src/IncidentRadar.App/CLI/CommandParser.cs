@@ -46,8 +46,8 @@ public static class CommandParser
         errors.AddRange(fromErrors);
         errors.AddRange(toErrors);
 
-        if (from.HasValue && to.HasValue && from >= to)
-            errors.Add("Дата --from должна быть раньше чем --to.");
+        if (from.HasValue && to.HasValue && from > to)
+            errors.Add("Дата --from должна быть не позже --to.");
 
         errors.AddRange(ValidateOutputPath(outputPath, format));
 

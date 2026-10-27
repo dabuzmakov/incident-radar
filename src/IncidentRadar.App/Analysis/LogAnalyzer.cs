@@ -12,10 +12,11 @@ public class LogAnalyzer
         _options = options;
     }
 
-    public async Task<AnalysisStatistics> AnalyzeAsync()
+    public async Task<AnalysisResult> AnalyzeAsync()
     {
         var sources = SourceResolver.GetSources(_options.Path);
         var reader = new SourceReader(sources);
+        var collector = new StatisticsCollector();
 
         var (totalRead, malformedCount) = (0, 0);
 
@@ -23,20 +24,27 @@ public class LogAnalyzer
         {
             totalRead++;
 
-            if (!LogParser.TryParse(line, out var log))
+            if (!LogParser.TryParse(line, out var logEntry))
             {
                 malformedCount++;
                 Console.Error.WriteLine($"Пропущена некорректная строка, номер {totalRead - 1}");
                 continue;
             }
 
+            if (!logEntry.InBounds(_options.From, _options.To))
+                continue;
 
+            collector.Add(logEntry);
         }
 
-        return new AnalysisStatistics
+        return new AnalysisResult
         (
             Sources: sources,
-            TotalRead: totalRead
+            TotalRead: totalRead,
+            MalformedCount: malformedCount,
+            Statistics: collector.GetStatistics()
         );
     }
+
+
 }

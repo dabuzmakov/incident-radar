@@ -19,7 +19,7 @@ public class Program
         try
         {
             var analyzer = new LogAnalyzer(parseResult.Options!);
-            var statistics = await analyzer.AnalyzeAsync();
+            var result = await analyzer.AnalyzeAsync();
 
             return (int)ExitCode.Success;
         }
