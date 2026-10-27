@@ -3,6 +3,6 @@
 public record AnalysisOptions(
     string Path,
     string OutputFormat,
-    string? OutputPath,
-    DateOnly? From,
-    DateOnly? To);
+    string? OutputPath = null,
+    DateOnly? From = null,
+    DateOnly? To = null);
