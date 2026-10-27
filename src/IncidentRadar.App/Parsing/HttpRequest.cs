@@ -3,5 +3,5 @@
 public record HttpRequest(
     HttpMethod Method,
     string Resource,
-    Version HttpVersion);
+    string Protocol);
 

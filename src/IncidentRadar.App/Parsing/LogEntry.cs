@@ -7,7 +7,7 @@ public record LogEntry(
     string? RemoteUser,
     DateTimeOffset TimeLocal,
     HttpRequest Request,
-    HttpStatusCode httpStatus,
-    long responseBytes,
+    HttpStatusCode HttpStatus,
+    long ResponseBytes,
     string? Referer,
     string? UserAgent);
