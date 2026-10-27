@@ -16,67 +16,80 @@ public static class LogParser
 
     public static bool TryParse(string line, out LogEntry? entry)
     {
-        var match = _regex.Match(line);
         entry = null;
+        var match = _regex.Match(line);
 
         if (!match.Success) return false;
 
         if (!IPAddress.TryParse(match.Groups["ip"].Value, out var ipAddress))
             return false;
 
-        var timeText = match.Groups["time"].Value;
-        if (timeText.Length < 5) return false;
-
-        timeText = timeText.Insert(timeText.Length - 2, ":");
-
-        if (!DateTimeOffset.TryParseExact(
-                timeText,
-                "dd/MMM/yyyy:HH:mm:ss zzz",
-                CultureInfo.InvariantCulture,
-                DateTimeStyles.None,
-                out var timestamp))
+        if (!TryParseTime(match.Groups["time"].Value, out var timestamp))
             return false;
 
-        var requestText = match.Groups["request"].Value;
-        var requestParts = requestText.Split(' ');
-
-        if (requestParts.Length != 3) return false;
-
-        if (!HttpMethod.TryParse(requestParts[0], out var method))
+        if (!TryParseRequest(match.Groups["request"].Value, out var request))
             return false;
 
-        var resource = requestParts[1];
-        if (string.IsNullOrWhiteSpace(resource))
-            return false;
-
-        var protocol = requestParts[2];
-
-        if (!_protocolRegex.IsMatch(protocol))
-            return false;
-
-        var request = new HttpRequest(method, resource, protocol);
-
-        if (!int.TryParse(match.Groups["status"].Value, out var status) ||
-            status is < 100 or > 599)
+        if (!int.TryParse(match.Groups["status"].Value, out var status) 
+            || status is < 100 or > 599)
             return false;
 
         if (!long.TryParse(match.Groups["bytes"].Value, out var bytes))
             return false;
 
-        var user = NullIfDash(match.Groups["user"].Value);
-        var referer = NullIfDash(match.Groups["referer"].Value);
-        var agent = NullIfDash(match.Groups["agent"].Value);
-
         entry = new LogEntry(
             RemoteAddress: ipAddress,
-            RemoteUser: user,
+            RemoteUser: NullIfDash(match.Groups["user"].Value),
             TimeLocal: timestamp,
             Request: request,
             HttpStatus: (HttpStatusCode)status,
             ResponseBytes: bytes,
-            Referer: referer,
-            UserAgent: agent
+            Referer: NullIfDash(match.Groups["referer"].Value),
+            UserAgent: NullIfDash(match.Groups["agent"].Value)
         );
+
+        return true;
+    }
+
+    private static bool TryParseTime(string value, out DateTimeOffset timestamp)
+    {
+        timestamp = default;
+
+        if (value.Length < 5)
+            return false;
+
+        var normalized = value.Insert(value.Length - 2, ":");
+
+        return DateTimeOffset.TryParseExact(
+            normalized,
+            "dd/MMM/yyyy:HH:mm:ss zzz",
+            CultureInfo.InvariantCulture,
+            DateTimeStyles.None,
+            out timestamp);
+    }
+
+    private static bool TryParseRequest(string value, out HttpRequest request)
+    {
+        request = null!;
+        var parts = value.Split(' ');
+
+        if (parts.Length != 3)
+            return false;
+
+        if (!HttpMethod.TryParse(parts[0], out var method))
+            return false;
+
+        var resource = parts[1];
+
+        if (string.IsNullOrWhiteSpace(resource))
+            return false;
+
+        var protocol = parts[2];
+
+        if (!_protocolRegex.IsMatch(protocol))
+            return false;
+
+        request = new HttpRequest(method!, resource, protocol);
 
         return true;
     }
