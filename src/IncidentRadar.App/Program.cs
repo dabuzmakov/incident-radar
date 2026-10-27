@@ -21,11 +21,6 @@ public class Program
             var analyzer = new LogAnalyzer(parseResult.Options!);
             var statistics = await analyzer.AnalyzeAsync();
 
-            Console.WriteLine($"Прочитано строк: {statistics.TotalRead}");
-
-            foreach (var source in statistics.Sources)
-                Console.WriteLine($"Источник: {source.Path}");
-
             return (int)ExitCode.Success;
         }
         catch (SourceException exeption)

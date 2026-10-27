@@ -1,4 +1,5 @@
-﻿using IncidentRadar.App.Sources;
+﻿using IncidentRadar.App.Parsing;
+using IncidentRadar.App.Sources;
 
 namespace IncidentRadar.App.Analysis;
 
@@ -16,11 +17,20 @@ public class LogAnalyzer
         var sources = SourceResolver.GetSources(_options.Path);
         var reader = new SourceReader(sources);
 
-        var totalRead = 0;
+        var (totalRead, malformedCount) = (0, 0);
 
         await foreach (var line in reader.ReadAsync())
         {
             totalRead++;
+
+            if (!LogParser.TryParse(line, out var log))
+            {
+                malformedCount++;
+                Console.Error.WriteLine($"Пропущена некорректная строка, номер {totalRead - 1}");
+                continue;
+            }
+
+
         }
 
         return new AnalysisStatistics
