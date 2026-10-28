@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "IncidentRadar.App": {
+      "commandName": "Project",
+      "commandLineArgs": "--path access-2025-03-01.log --output-format json",
+      "workingDirectory": "C:\\Users\\ZarakialonEE\\source\\repos\\homework-3-incident-radar\\samples\\logs"
+    }
+  }
+}

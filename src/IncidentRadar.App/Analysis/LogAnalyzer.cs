@@ -3,18 +3,11 @@ using IncidentRadar.App.Sources;
 
 namespace IncidentRadar.App.Analysis;
 
-public class LogAnalyzer
+public static class LogAnalyzer
 {
-    private readonly AnalysisOptions _options;
-
-    public LogAnalyzer(AnalysisOptions options)
+    public static async Task<AnalysisResult> AnalyzeAsync(AnalysisOptions options)
     {
-        _options = options;
-    }
-
-    public async Task<AnalysisResult> AnalyzeAsync()
-    {
-        var sources = SourceResolver.GetSources(_options.Path);
+        var sources = SourceResolver.GetSources(options.Path);
         var reader = new SourceReader(sources);
         var collector = new StatisticsCollector();
 
@@ -31,7 +24,7 @@ public class LogAnalyzer
                 continue;
             }
 
-            if (!logEntry.InBounds(_options.From, _options.To))
+            if (!logEntry.InBounds(options.From, options.To))
                 continue;
 
             collector.Add(logEntry);

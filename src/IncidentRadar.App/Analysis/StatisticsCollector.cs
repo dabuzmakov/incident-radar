@@ -5,7 +5,7 @@ namespace IncidentRadar.App.Analysis;
 
 public class StatisticsCollector
 {
-    private static readonly int _topResourcesCount;
+    private static readonly int _topResourcesCount = 10;
     private readonly Dictionary<HttpStatusCode, int> _statusDistribution = new();
     private readonly Dictionary<string, int> _resourcesDistribution = new();
     private readonly Dictionary<long, int> _responseSizeDistribution = new();
@@ -41,7 +41,7 @@ public class StatisticsCollector
             TopResources: _resourcesDistribution
                 .OrderByDescending(pair => pair.Value)
                 .ThenBy(pair => pair.Key, StringComparer.Ordinal)
-                .Take(10)
+                .Take(_topResourcesCount)
                 .ToList(),
             AverageResponseSize: _requestsCount != 0 
                 ? _totalResponseSize / (double)_requestsCount 

@@ -1,11 +1,15 @@
 using IncidentRadar.App.Analysis;
 using IncidentRadar.App.CLI;
 using IncidentRadar.App.Exceptions;
+using System.Text;
 
 public class Program
 {
     public static async Task<int> Main(string[] args)
     {
+        Console.OutputEncoding = Encoding.UTF8;
+        Console.InputEncoding = Encoding.UTF8;
+
         var parseResult = CommandParser.Parse(args);
 
         if (!parseResult.IsSuccess)
@@ -18,8 +22,7 @@ public class Program
 
         try
         {
-            var analyzer = new LogAnalyzer(parseResult.Options!);
-            var result = await analyzer.AnalyzeAsync();
+            var result = await LogAnalyzer.AnalyzeAsync(parseResult.Options!);
 
             return (int)ExitCode.Success;
         }

@@ -18,7 +18,7 @@ public class LogSourceTest
     [InlineData("access-2025-03-02.log")]
     public async Task ReadsLocalFile(string fileName)
     {
-        var file = Path.Combine(_samplesDirectory, $"{fileName}");
+        var file = Path.Combine(_samplesDirectory, fileName);
 
         var options = new AnalysisOptions
         (
@@ -26,10 +26,9 @@ public class LogSourceTest
             OutputFormat: "json"
         );
 
-        var analyzer = new LogAnalyzer(options);
-        var statistics = await analyzer.AnalyzeAsync();
+        var result = await LogAnalyzer.AnalyzeAsync(options);
 
-        statistics.TotalRead.Should().BeGreaterThan(0);
+        result.TotalRead.Should().BeGreaterThan(0);
     }
 
     public static TheoryData<string[], string> LogFiles = new()
@@ -59,10 +58,9 @@ public class LogSourceTest
             OutputFormat: "json"
         );
 
-        var analyzer = new LogAnalyzer(options);
-        var statistics = await analyzer.AnalyzeAsync();
+        var result = await LogAnalyzer.AnalyzeAsync(options);
 
-        statistics.TotalRead.Should().BeGreaterThan(0);
+        result.TotalRead.Should().BeGreaterThan(0);
     }
 
     [Fact(DisplayName = "URL вернул 404 -> exit code 2")]
