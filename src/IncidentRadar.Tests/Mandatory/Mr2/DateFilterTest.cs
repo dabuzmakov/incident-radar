@@ -6,12 +6,11 @@ namespace IncidentRadar.Tests.Mandatory.Mr2;
 /// <summary>Обязательные тесты: фильтрация по датам.</summary>
 public class DateFilterTest
 {
-    private static string _samplesDirectory
+    private static readonly string _samplesDirectory
         = Path.Combine(AppContext.BaseDirectory, "samples/logs");
-
-    private static Task<AnalysisResult> _firstMarResult 
+    private static readonly Task<AnalysisResult> _firstMarResult 
         = GetResult("access-2025-03-01.log");
-    private static Task<AnalysisResult> _secondMarResult 
+    private static readonly Task<AnalysisResult> _secondMarResult 
         = GetResult("access-2025-03-02.log");
 
     [Theory(DisplayName = "Без --from и --to обрабатываются все записи")]

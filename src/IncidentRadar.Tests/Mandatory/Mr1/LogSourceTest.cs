@@ -7,10 +7,10 @@ namespace IncidentRadar.Tests.Mandatory.Mr1;
 /// <summary>Обязательные тесты: источники логов.</summary>
 public class LogSourceTest
 {
-    private static string _samplesDirectory
+    private static readonly string _samplesDirectory
         = Path.Combine(AppContext.BaseDirectory, "samples/logs");
 
-    private static string _sampleUrl 
+    private static readonly string _sampleUrl 
         = "https://raw.githubusercontent.com/elastic/examples/master/Common%20Data%20Formats/nginx_logs/nginx_logs";
 
     [Theory(DisplayName = "Локальный файл читается")]
