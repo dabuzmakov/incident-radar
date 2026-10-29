@@ -20,7 +20,7 @@ public static class LogAnalyzer
             if (!LogParser.TryParse(line, out var logEntry))
             {
                 malformedCount++;
-                Console.Error.WriteLine($"Пропущена некорректная строка, номер {totalRead - 1}");
+                Console.Error.WriteLine($"WARN: skipped malformed log line {totalRead - 1}");
                 continue;
             }
 
