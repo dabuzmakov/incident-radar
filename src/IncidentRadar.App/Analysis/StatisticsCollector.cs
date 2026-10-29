@@ -44,7 +44,7 @@ public class StatisticsCollector
                 .Take(_topResourcesCount)
                 .ToList(),
             AverageResponseSize: _requestsCount != 0 
-                ? _totalResponseSize / (double)_requestsCount 
+                ? (_totalResponseSize / (double)_requestsCount)
                 : 0,
             P95responseSize: CalculateP95()
         );

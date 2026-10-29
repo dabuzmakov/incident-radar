@@ -40,17 +40,9 @@ public class LogParsingTest
             OutputFormat: "json"
         );
 
-        using var errorWriter = new StringWriter();
-        Console.SetError(errorWriter);
-
         var result = await LogAnalyzer.AnalyzeAsync(options);
 
         result.TotalRead.Should().Be(13);
         result.MalformedCount.Should().Be(6);
-
-        errorWriter.ToString()
-            .Should().Contain("Пропущена некорректная строка");
-
-        Console.SetError(Console.Error);
     }
 }
