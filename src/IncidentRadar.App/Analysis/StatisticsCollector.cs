@@ -15,14 +15,14 @@ public class StatisticsCollector
 
     public void Add(LogEntry entry)
     {
-        var (responseSize, status, resource) 
+        var (responseSize, status, resource)
             = (entry.ResponseSize, entry.HttpStatus, entry.Request.Resource);
 
         _requestsCount++;
         _maxResponseSize = Math.Max(_maxResponseSize, responseSize);
         _totalResponseSize += responseSize;
 
-        _statusDistribution[status] 
+        _statusDistribution[status]
             = _statusDistribution.GetValueOrDefault(status) + 1;
 
         _resourcesDistribution[resource]
@@ -43,7 +43,7 @@ public class StatisticsCollector
                 .ThenBy(pair => pair.Key, StringComparer.Ordinal)
                 .Take(_topResourcesCount)
                 .ToList(),
-            AverageResponseSize: _requestsCount != 0 
+            AverageResponseSize: _requestsCount != 0
                 ? (_totalResponseSize / (double)_requestsCount)
                 : 0,
             P95responseSize: CalculateP95()
@@ -51,7 +51,10 @@ public class StatisticsCollector
 
     private long CalculateP95()
     {
-        if (_requestsCount == 0) return 0;
+        if (_requestsCount == 0)
+        {
+            return 0;
+        }
 
         var rank = Math.Ceiling(_requestsCount * 0.95);
         var accumulator = 0;
@@ -61,7 +64,9 @@ public class StatisticsCollector
             accumulator += count;
 
             if (accumulator >= rank)
+            {
                 return size;
+            }
         }
 
         throw new InvalidOperationException("Не удалось вычислить P95.");

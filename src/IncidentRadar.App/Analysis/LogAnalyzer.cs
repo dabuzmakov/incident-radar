@@ -25,7 +25,9 @@ public static class LogAnalyzer
             }
 
             if (!logEntry.InBounds(options.From, options.To))
+            {
                 continue;
+            }
 
             collector.Add(logEntry);
         }

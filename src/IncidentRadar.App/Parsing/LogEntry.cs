@@ -17,10 +17,14 @@ public record LogEntry(
         var logDate = DateOnly.FromDateTime(TimeLocal.DateTime);
 
         if (fromDate is { } from && logDate < from)
+        {
             return false;
+        }
 
         if (toDate is { } to && logDate > to)
+        {
             return false;
+        }
 
         return true;
     }

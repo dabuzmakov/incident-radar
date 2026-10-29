@@ -15,7 +15,9 @@ public class Program
         if (!parseResult.IsSuccess)
         {
             foreach (var error in parseResult.Errors)
+            {
                 Console.Error.WriteLine(error);
+            }
 
             return (int)ExitCode.InvalidInput;
         }

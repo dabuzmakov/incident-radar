@@ -3,7 +3,7 @@
 namespace IncidentRadar.App.CLI;
 
 public record ParseResult(
-    AnalysisOptions? Options, 
+    AnalysisOptions? Options,
     IReadOnlyList<string> Errors)
 {
     public bool IsSuccess => Errors.Count == 0;

@@ -47,7 +47,9 @@ public static class CommandParser
         errors.AddRange(toErrors);
 
         if (from.HasValue && to.HasValue && from > to)
+        {
             errors.Add("Дата --from должна быть не позже --to.");
+        }
 
         errors.AddRange(ValidateOutputPath(outputPath, format));
 
@@ -61,18 +63,26 @@ public static class CommandParser
     private static IEnumerable<string> ValidateRequiredOptions(IReadOnlyDictionary<string, string> values)
     {
         if (!values.TryGetValue("--path", out var path) || string.IsNullOrWhiteSpace(path))
+        {
             yield return "--path является обязательным аргументом.";
+        }
 
         if (!values.TryGetValue("--output-format", out var format))
+        {
             yield return "--output-format является обязательным аргументом.";
+        }
         else if (!_supportedFormats.ContainsKey(format))
+        {
             yield return $"Выходной формат {format} не поддерживается.";
+        }
     }
 
     private static IEnumerable<string> ValidateOutputPath(string? outputPath, string? format)
     {
         if (outputPath is null)
+        {
             yield break;
+        }
 
         if (string.IsNullOrWhiteSpace(outputPath))
         {
@@ -81,19 +91,27 @@ public static class CommandParser
         }
 
         if (format is null || !_supportedFormats.TryGetValue(format, out var extension))
+        {
             yield break;
+        }
 
         if (!string.Equals(Path.GetExtension(outputPath), extension, StringComparison.OrdinalIgnoreCase))
+        {
             yield return $"Формат выходного файла должен иметь расширение {extension} .";
+        }
     }
 
     private static (DateOnly? Date, string[] Errors) ParseDate(IReadOnlyDictionary<string, string> values, string option)
     {
         if (!values.TryGetValue(option, out var value))
+        {
             return (null, []);
+        }
 
         if (DateOnly.TryParseExact(value, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var date))
+        {
             return (date, []);
+        }
 
         return (null, [$"Некорректный формат даты {option}. Ожидается: yyyy-MM-dd."]);
     }
@@ -108,7 +126,9 @@ public static class CommandParser
             var option = args[i];
 
             if (_aliases.TryGetValue(option, out var fullName))
+            {
                 option = fullName;
+            }
 
             if (!_knownOptions.Contains(option))
             {
@@ -123,7 +143,9 @@ public static class CommandParser
             }
 
             if (!values.TryAdd(option, args[++i]))
+            {
                 errors.Add($"Повторный аргумент: {option}.");
+            }
         }
 
         return (values, errors);

@@ -22,9 +22,9 @@ public class SourceReader
             {
                 string? line;
 
-                try 
-                { 
-                    line = await reader.ReadLineAsync(); 
+                try
+                {
+                    line = await reader.ReadLineAsync();
                 }
                 catch (Exception exception)
                 {
@@ -32,8 +32,10 @@ public class SourceReader
                         $"Не удалось прочитать источник {source.Path}", exception);
                 }
 
-                if (line is null) 
+                if (line is null)
+                {
                     break;
+                }
 
                 yield return line;
             }

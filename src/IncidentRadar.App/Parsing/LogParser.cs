@@ -19,23 +19,36 @@ public static class LogParser
         entry = null!;
         var match = _regex.Match(line);
 
-        if (!match.Success) return false;
+        if (!match.Success)
+        {
+            return false;
+        }
 
         if (!IPAddress.TryParse(match.Groups["ip"].Value, out var ipAddress))
+        {
             return false;
+        }
 
         if (!TryParseTime(match.Groups["time"].Value, out var timestamp))
+        {
             return false;
+        }
 
         if (!TryParseRequest(match.Groups["request"].Value, out var request))
+        {
             return false;
+        }
 
-        if (!int.TryParse(match.Groups["status"].Value, out var status) 
+        if (!int.TryParse(match.Groups["status"].Value, out var status)
             || status is < 100 or > 599)
+        {
             return false;
+        }
 
         if (!long.TryParse(match.Groups["bytes"].Value, out var bytes))
+        {
             return false;
+        }
 
         entry = new LogEntry(
             RemoteAddress: ipAddress,
@@ -56,7 +69,9 @@ public static class LogParser
         timestamp = default;
 
         if (value.Length < 5)
+        {
             return false;
+        }
 
         var normalized = value.Insert(value.Length - 2, ":");
 
@@ -74,20 +89,28 @@ public static class LogParser
         var parts = value.Split(' ');
 
         if (parts.Length != 3)
+        {
             return false;
+        }
 
         if (!HttpMethod.TryParse(parts[0], out var method))
+        {
             return false;
+        }
 
         var resource = parts[1];
 
         if (string.IsNullOrWhiteSpace(resource))
+        {
             return false;
+        }
 
         var protocol = parts[2];
 
         if (!_protocolRegex.IsMatch(protocol))
+        {
             return false;
+        }
 
         request = new HttpRequest(method!, resource, protocol);
 
