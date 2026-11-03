@@ -1,6 +1,5 @@
 using FluentAssertions;
 using IncidentRadar.App.Analysis;
-using IncidentRadar.App.Parsing;
 using System.Net;
 
 namespace IncidentRadar.Tests.Mandatory.Mr2;

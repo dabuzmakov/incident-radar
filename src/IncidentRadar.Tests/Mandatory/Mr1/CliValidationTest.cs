@@ -1,4 +1,5 @@
 using FluentAssertions;
+using IncidentRadar.App.CLI;
 
 namespace IncidentRadar.Tests.Mandatory.Mr1;
 
@@ -11,7 +12,7 @@ public class CliValidationTest
         var args = new string[] { "--output-format", "json" };
         var exitCode = await Program.Main(args);
 
-        exitCode.Should().Be(2);
+        exitCode.Should().Be((int)ExitCode.InvalidInput);
     }
 
     [Theory(DisplayName = "Неподдерживаемый --output-format -> exit code 2")]
@@ -23,7 +24,7 @@ public class CliValidationTest
         var args = new string[] { "--path", "exampleName", "--output-format", $"{format}" };
         var exitCode = await Program.Main(args);
 
-        exitCode.Should().Be(2);
+        exitCode.Should().Be((int)ExitCode.InvalidInput);
     }
 
     [Theory(DisplayName = "--from больше или равен --to -> exit code 2")]
@@ -34,7 +35,7 @@ public class CliValidationTest
         var args = new string[] { "--path", "exampleName", "--output-format", "json", "--from", $"{from}", "--to", $"{to}" };
         var exitCode = await Program.Main(args);
 
-        exitCode.Should().Be(2);
+        exitCode.Should().Be((int)ExitCode.InvalidInput);
     }
 
     [Fact(DisplayName = "Несуществующий локальный файл -> exit code 2")]
@@ -44,7 +45,7 @@ public class CliValidationTest
         var args = new string[] { "--path", $"{name}", "--output-format", "json" };
         var exitCode = await Program.Main(args);
 
-        exitCode.Should().Be(2);
+        exitCode.Should().Be((int)ExitCode.InvalidInput);
     }
 
     [Fact(DisplayName = "Расширение файла отчёта не соответствует формату -> exit code 2")]
@@ -54,6 +55,6 @@ public class CliValidationTest
         var args = new string[] { "--path", "exampleName", "--output-format", "json", "--output-path", $"{outputPath}" };
         var exitCode = await Program.Main(args);
 
-        exitCode.Should().Be(2);
+        exitCode.Should().Be((int)ExitCode.InvalidInput);
     }
 }

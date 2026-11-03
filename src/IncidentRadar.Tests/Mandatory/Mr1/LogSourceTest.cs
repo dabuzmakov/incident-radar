@@ -1,5 +1,6 @@
 using FluentAssertions;
 using IncidentRadar.App.Analysis;
+using IncidentRadar.App.CLI;
 using IncidentRadar.App.Sources;
 
 namespace IncidentRadar.Tests.Mandatory.Mr1;
@@ -70,6 +71,6 @@ public class LogSourceTest
         var args = new string[] { "--path", $"{badUrl}", "--output-format", "json" };
         var exitCode = await Program.Main(args);
 
-        exitCode.Should().Be(2);
+        exitCode.Should().Be((int)ExitCode.InvalidInput);
     }
 }

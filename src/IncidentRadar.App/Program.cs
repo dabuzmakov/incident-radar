@@ -36,14 +36,14 @@ public class Program
 
             return (int)ExitCode.Success;
         }
-        catch (SourceException exeption)
+        catch (SourceException exсeption)
         {
-            Console.Error.WriteLine($"Ошибка источника: {exeption.Message}");
+            Console.Error.WriteLine($"Ошибка источника: {exсeption.Message}");
             return (int)ExitCode.InvalidInput;
         }
-        catch (Exception exeption)
+        catch (Exception exсeption)
         {
-            Console.Error.WriteLine($"Внутренняя ошибка: {exeption.Message}");
+            Console.Error.WriteLine($"Внутренняя ошибка: {exсeption.Message}");
             return (int)ExitCode.InternalError;
         }
     }
