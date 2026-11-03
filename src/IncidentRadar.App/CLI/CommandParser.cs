@@ -3,9 +3,11 @@ using System.Globalization;
 
 namespace IncidentRadar.App.CLI;
 
-public static class CommandParser
+public class CommandParser
 {
-    private static HashSet<string> _knownOptions = new()
+    private readonly OptionsValidator _validator;
+
+    private static readonly HashSet<string> _knownOptions = new()
     {
         "--path",
         "--output-format",
@@ -14,91 +16,42 @@ public static class CommandParser
         "--to"
     };
 
-    private static Dictionary<string, string> _aliases = new()
+    private static readonly Dictionary<string, string> _aliases = new()
     {
         ["-p"] = "--path",
         ["-f"] = "--output-format",
         ["-o"] = "--output-path"
     };
 
-    private static Dictionary<string, string> _supportedFormats = new()
+    public CommandParser(OptionsValidator validator)
     {
-        ["json"] = ".json",
-        ["markdown"] = ".md"
-    };
+        _validator = validator;
+    }
 
-    public static ParseResult Parse(string[] args)
+    public ParseResult Parse(string[] args)
     {
         var errors = new List<string>();
 
-        var (values, argumentErrors) = ParseArguments(args);
+        var (optionsDictionary, argumentErrors) = ParseArguments(args);
+
+        optionsDictionary.TryGetValue("--path", out var path);
+        optionsDictionary.TryGetValue("--output-format", out var format);
+        optionsDictionary.TryGetValue("--output-path", out var outputPath);
+
+        var (from, fromErrors) = ParseDate(optionsDictionary, "--from");
+        var (to, toErrors) = ParseDate(optionsDictionary, "--to");
+
+        var options = new AnalysisOptions(path, format, outputPath, from, to);
+
         errors.AddRange(argumentErrors);
-
-        errors.AddRange(ValidateRequiredOptions(values));
-
-        values.TryGetValue("--path", out var path);
-        values.TryGetValue("--output-format", out var format);
-        values.TryGetValue("--output-path", out var outputPath);
-
-        var (from, fromErrors) = ParseDate(values, "--from");
-        var (to, toErrors) = ParseDate(values, "--to");
-
         errors.AddRange(fromErrors);
         errors.AddRange(toErrors);
+        errors.AddRange(_validator.Validate(options));
 
-        if (from.HasValue && to.HasValue && from > to)
-        {
-            errors.Add("Дата --from должна быть не позже --to.");
-        }
-
-        errors.AddRange(ValidateOutputPath(outputPath, format));
-
-        var options = errors.Count == 0
-            ? new AnalysisOptions(path!, format!, outputPath, from, to)
-            : null;
-
-        return new ParseResult(options, errors);
-    }
-
-    private static IEnumerable<string> ValidateRequiredOptions(IReadOnlyDictionary<string, string> values)
-    {
-        if (!values.TryGetValue("--path", out var path) || string.IsNullOrWhiteSpace(path))
-        {
-            yield return "--path является обязательным аргументом.";
-        }
-
-        if (!values.TryGetValue("--output-format", out var format))
-        {
-            yield return "--output-format является обязательным аргументом.";
-        }
-        else if (!_supportedFormats.ContainsKey(format))
-        {
-            yield return $"Выходной формат {format} не поддерживается.";
-        }
-    }
-
-    private static IEnumerable<string> ValidateOutputPath(string? outputPath, string? format)
-    {
-        if (outputPath is null)
-        {
-            yield break;
-        }
-
-        if (string.IsNullOrWhiteSpace(outputPath))
-        {
-            yield return "--output-path не может быть пустым.";
-            yield break;
-        }
-
-        if (format is null || !_supportedFormats.TryGetValue(format, out var extension))
-        {
-            yield break;
-        }
-
-        if (!string.Equals(Path.GetExtension(outputPath), extension, StringComparison.OrdinalIgnoreCase))
-        {
-            yield return $"Формат выходного файла должен иметь расширение {extension} .";
-        }
+        return new ParseResult(
+            errors.Count == 0 ? options : null,
+            errors
+        );
     }
 
     private static (DateOnly? Date, string[] Errors) ParseDate(IReadOnlyDictionary<string, string> values, string option)

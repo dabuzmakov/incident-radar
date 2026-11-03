@@ -5,12 +5,20 @@ using System.Text;
 
 public class Program
 {
+    private static readonly Dictionary<string, string> _supportedFormats = new()
+    {
+        ["json"] = ".json",
+        ["markdown"] = ".md"
+    };
+
     public static async Task<int> Main(string[] args)
     {
         Console.OutputEncoding = Encoding.UTF8;
         Console.InputEncoding = Encoding.UTF8;
 
-        var parseResult = CommandParser.Parse(args);
+        var optionsValidator = new OptionsValidator(_supportedFormats);
+        var commandParser = new CommandParser(optionsValidator);
+        var parseResult = commandParser.Parse(args);
 
         if (!parseResult.IsSuccess)
         {
