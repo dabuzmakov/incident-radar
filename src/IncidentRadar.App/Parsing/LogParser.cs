@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 
 namespace IncidentRadar.App.Parsing;
 
-public static class LogParser
+public class LogParser : ILogParser
 {
     private static readonly Regex _regex = new(
         @"^(?<ip>\S+) - (?<user>\S+) \[(?<time>[^\]]+)\] ""(?<request>[^""]*)"" (?<status>\d{3}) (?<bytes>\d+) ""(?<referer>[^""]*)"" ""(?<agent>[^""]*)""$",
@@ -14,7 +14,7 @@ public static class LogParser
     private static readonly Regex _protocolRegex =
         new(@"^HTTP/[0-9]+\.[0-9]+$", RegexOptions.Compiled);
 
-    public static bool TryParse(string line, out LogEntry entry)
+    public bool TryParse(string line, out LogEntry entry)
     {
         entry = null!;
         var match = _regex.Match(line);
@@ -64,7 +64,7 @@ public static class LogParser
         return true;
     }
 
-    private static bool TryParseTime(string value, out DateTimeOffset timestamp)
+    private bool TryParseTime(string value, out DateTimeOffset timestamp)
     {
         timestamp = default;
 
@@ -83,7 +83,7 @@ public static class LogParser
             out timestamp);
     }
 
-    private static bool TryParseRequest(string value, out HttpRequest request)
+    private bool TryParseRequest(string value, out HttpRequest request)
     {
         request = null!;
         var parts = value.Split(' ');
@@ -117,6 +117,6 @@ public static class LogParser
         return true;
     }
 
-    private static string? NullIfDash(string value)
+    private string? NullIfDash(string value)
         => value == "-" ? null : value;
 }

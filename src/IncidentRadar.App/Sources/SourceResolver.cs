@@ -2,12 +2,12 @@
 
 namespace IncidentRadar.App.Sources;
 
-public static class SourceResolver
+public class SourceResolver : ISourceResolver
 {
     private static readonly HashSet<string> _supportedExtensions =
         new(StringComparer.OrdinalIgnoreCase) { ".log", ".txt" };
 
-    public static IReadOnlyList<LogSource> GetSources(string path)
+    public IReadOnlyList<LogSource> GetSources(string path)
     {
         try
         {

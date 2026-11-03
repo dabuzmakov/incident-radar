@@ -1,6 +1,10 @@
 using IncidentRadar.App.Analysis;
 using IncidentRadar.App.CLI;
 using IncidentRadar.App.Exceptions;
+using IncidentRadar.App.Logging;
+using IncidentRadar.App.Parsing;
+using IncidentRadar.App.Sources;
+using IncidentRadar.App.Sources.Opening;
 using System.Text;
 
 public class Program
@@ -16,15 +20,31 @@ public class Program
         Console.OutputEncoding = Encoding.UTF8;
         Console.InputEncoding = Encoding.UTF8;
 
+        var logger = new ConsoleLogger();
+
         var optionsValidator = new OptionsValidator(_supportedFormats);
         var commandParser = new CommandParser(optionsValidator);
+
+        var openerFactory = new SourceOpenerFactory(
+            new FileSourceOpener(),
+            new UrlSourceOpener()
+        );
+
+        var analyzer = new LogAnalyzer(
+            parser: new LogParser(),
+            readerFactory: sources => new SourceReader(sources, openerFactory),
+            collectorFactory: () => new StatisticsCollector(),
+            resolver: new SourceResolver(),
+            logger: logger
+        );
+
         var parseResult = commandParser.Parse(args);
 
         if (!parseResult.IsSuccess)
         {
             foreach (var error in parseResult.Errors)
             {
-                Console.Error.WriteLine(error);
+                logger.LogError(error);
             }
 
             return (int)ExitCode.InvalidInput;
@@ -32,18 +52,18 @@ public class Program
 
         try
         {
-            var result = await LogAnalyzer.AnalyzeAsync(parseResult.Options!);
+            var result = await analyzer.AnalyzeAsync(parseResult.Options!);
 
             return (int)ExitCode.Success;
         }
         catch (SourceException exсeption)
         {
-            Console.Error.WriteLine($"Ошибка источника: {exсeption.Message}");
+            logger.LogError($"ошибка источника, {exсeption.Message}");
             return (int)ExitCode.InvalidInput;
         }
         catch (Exception exсeption)
         {
-            Console.Error.WriteLine($"Внутренняя ошибка: {exсeption.Message}");
+            logger.LogError($"внутренняя ошибка, {exсeption.Message}");
             return (int)ExitCode.InternalError;
         }
     }

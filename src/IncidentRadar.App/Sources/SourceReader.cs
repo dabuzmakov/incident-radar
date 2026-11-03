@@ -3,12 +3,14 @@ using IncidentRadar.App.Sources.Opening;
 
 namespace IncidentRadar.App.Sources;
 
-public class SourceReader
+public class SourceReader : ISourceReader
 {
     private readonly IReadOnlyList<LogSource> _sources;
     private readonly SourceOpenerFactory _openerFactory;
 
-    public SourceReader(IReadOnlyList<LogSource> sources, SourceOpenerFactory openerFactory)
+    public SourceReader(
+        IReadOnlyList<LogSource> sources, 
+        SourceOpenerFactory openerFactory)
     {
         _sources = sources;
         _openerFactory = openerFactory;

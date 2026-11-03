@@ -3,7 +3,7 @@ using System.Net;
 
 namespace IncidentRadar.App.Analysis;
 
-public class StatisticsCollector
+public class StatisticsCollector : IStatisticsCollector
 {
     private static readonly int _topResourcesCount = 10;
     private readonly Dictionary<HttpStatusCode, int> _statusDistribution = new();

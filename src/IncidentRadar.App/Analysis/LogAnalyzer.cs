@@ -1,17 +1,36 @@
-﻿using IncidentRadar.App.Parsing;
+﻿using IncidentRadar.App.Logging;
+using IncidentRadar.App.Parsing;
 using IncidentRadar.App.Sources;
-using IncidentRadar.App.Sources.Opening;
 
 namespace IncidentRadar.App.Analysis;
 
-public static class LogAnalyzer
+public class LogAnalyzer
 {
-    public static async Task<AnalysisResult> AnalyzeAsync(AnalysisOptions options)
+    private readonly ILogParser _parser;
+    private readonly ILogger _logger;
+    private readonly ISourceResolver _resolver;
+    private readonly Func<IReadOnlyList<LogSource>, ISourceReader> _readerFactory;
+    private readonly Func<IStatisticsCollector> _collectorFactory;
+
+    public LogAnalyzer(
+       ILogParser parser,
+       Func<IReadOnlyList<LogSource>, ISourceReader> readerFactory,
+       Func<IStatisticsCollector> collectorFactory,
+       ISourceResolver resolver,
+       ILogger logger)
     {
-        var sources = SourceResolver.GetSources(options.Path);
-        var openerFactory = new SourceOpenerFactory(new FileSourceOpener(), new UrlSourceOpener());
-        var reader = new SourceReader(sources, openerFactory);
-        var collector = new StatisticsCollector();
+        _parser = parser;
+        _readerFactory = readerFactory;
+        _collectorFactory = collectorFactory;
+        _resolver = resolver;
+        _logger = logger;
+    }
+
+    public async Task<AnalysisResult> AnalyzeAsync(AnalysisOptions options)
+    {
+        var sources = _resolver.GetSources(options.Path);
+        var reader = _readerFactory(sources);
+        var collector = _collectorFactory();
 
         var (totalRead, malformedCount) = (0, 0);
 
@@ -19,10 +38,10 @@ public static class LogAnalyzer
         {
             totalRead++;
 
-            if (!LogParser.TryParse(line, out var logEntry))
+            if (!_parser.TryParse(line, out var logEntry))
             {
                 malformedCount++;
-                Console.Error.WriteLine($"WARN: skipped malformed log line {totalRead - 1}");
+                _logger.LogWarning($"пропущена некорректная строка {totalRead}");
                 continue;
             }
 
