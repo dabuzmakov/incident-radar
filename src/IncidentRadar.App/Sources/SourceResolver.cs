@@ -4,7 +4,6 @@ namespace IncidentRadar.App.Sources;
 
 public static class SourceResolver
 {
-    private static readonly HttpClient _httpClient = new();
     private static readonly HashSet<string> _supportedExtensions =
         new(StringComparer.OrdinalIgnoreCase) { ".log", ".txt" };
 
@@ -27,24 +26,6 @@ public static class SourceResolver
         catch (Exception exception)
         {
             throw new SourceException(exception.Message, exception);
-        }
-    }
-
-    public static async Task<Stream> OpenAsync(LogSource source)
-    {
-        try
-        {
-            return source.Type switch
-            {
-                SourceType.File => File.OpenRead(source.Path),
-                SourceType.Url => await _httpClient.GetStreamAsync(source.Path),
-                _ => throw new ArgumentOutOfRangeException(nameof(source.Type))
-            };
-        }
-        catch (Exception exception)
-        {
-            throw new SourceException(
-                $"Не удалось открыть источник {source.Path}", exception);
         }
     }
 

@@ -1,5 +1,6 @@
 ﻿using IncidentRadar.App.Parsing;
 using IncidentRadar.App.Sources;
+using IncidentRadar.App.Sources.Opening;
 
 namespace IncidentRadar.App.Analysis;
 
@@ -8,7 +9,8 @@ public static class LogAnalyzer
     public static async Task<AnalysisResult> AnalyzeAsync(AnalysisOptions options)
     {
         var sources = SourceResolver.GetSources(options.Path);
-        var reader = new SourceReader(sources);
+        var openerFactory = new SourceOpenerFactory(new FileSourceOpener(), new UrlSourceOpener());
+        var reader = new SourceReader(sources, openerFactory);
         var collector = new StatisticsCollector();
 
         var (totalRead, malformedCount) = (0, 0);
