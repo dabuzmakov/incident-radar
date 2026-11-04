@@ -1,4 +1,5 @@
-﻿using IncidentRadar.App.Sources;
+﻿using IncidentRadar.App.Analysis.Statistics;
+using IncidentRadar.App.Sources;
 
 namespace IncidentRadar.App.Analysis;
 

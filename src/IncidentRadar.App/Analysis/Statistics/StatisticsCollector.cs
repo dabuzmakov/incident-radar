@@ -1,7 +1,7 @@
 ﻿using IncidentRadar.App.Parsing;
 using System.Net;
 
-namespace IncidentRadar.App.Analysis;
+namespace IncidentRadar.App.Analysis.Statistics;
 
 public class StatisticsCollector : IStatisticsCollector
 {

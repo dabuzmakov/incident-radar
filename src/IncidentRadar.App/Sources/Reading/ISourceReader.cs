@@ -1,4 +1,4 @@
-﻿namespace IncidentRadar.App.Sources;
+﻿namespace IncidentRadar.App.Sources.Reading;
 
 public interface ISourceReader
 {

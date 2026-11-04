@@ -1,6 +1,6 @@
 ﻿using IncidentRadar.App.Parsing;
 
-namespace IncidentRadar.App.Analysis;
+namespace IncidentRadar.App.Analysis.Statistics;
 
 public interface IStatisticsCollector
 {

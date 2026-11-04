@@ -1,7 +1,7 @@
 ﻿using IncidentRadar.App.Exceptions;
 using IncidentRadar.App.Sources.Opening;
 
-namespace IncidentRadar.App.Sources;
+namespace IncidentRadar.App.Sources.Reading;
 
 public class SourceReader : ISourceReader
 {

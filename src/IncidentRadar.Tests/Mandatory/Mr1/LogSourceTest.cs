@@ -1,7 +1,7 @@
 using FluentAssertions;
 using IncidentRadar.App.Analysis;
 using IncidentRadar.App.CLI;
-using IncidentRadar.App.Sources;
+using IncidentRadar.App.Sources.Resolving;
 
 namespace IncidentRadar.Tests.Mandatory.Mr1;
 

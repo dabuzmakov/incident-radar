@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace IncidentRadar.App.Analysis;
+namespace IncidentRadar.App.Analysis.Statistics;
 
 public record AnalysisStatistics(
     int RequestsCount,

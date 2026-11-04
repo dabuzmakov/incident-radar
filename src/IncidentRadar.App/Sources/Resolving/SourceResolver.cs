@@ -1,6 +1,6 @@
 ﻿using IncidentRadar.App.Exceptions;
 
-namespace IncidentRadar.App.Sources;
+namespace IncidentRadar.App.Sources.Resolving;
 
 public class SourceResolver : ISourceResolver
 {
