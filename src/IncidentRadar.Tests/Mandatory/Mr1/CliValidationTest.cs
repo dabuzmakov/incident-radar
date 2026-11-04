@@ -6,6 +6,11 @@ namespace IncidentRadar.Tests.Mandatory.Mr1;
 /// <summary>Обязательные тесты: валидация аргументов командной строки.</summary>
 public class CliValidationTest
 {
+    private static readonly string _samplesDirectory
+        = Path.Combine(AppContext.BaseDirectory, "samples/logs");
+    private static readonly string _examplePath
+        = Path.Combine(_samplesDirectory, "access-2025-03-01.log");
+
     [Fact(DisplayName = "Не передан обязательный --path -> exit code 2")]
     public async Task MissingPathExitsWithTwo()
     {
@@ -21,18 +26,19 @@ public class CliValidationTest
     [InlineData("txt")]
     public async Task UnsupportedOutputFormatExitsWithTwo(string format)
     {
-        var args = new string[] { "--path", "exampleName", "--output-format", $"{format}" };
+        var args = new string[] { "--path", $"{_examplePath}", "--output-format", $"{format}" };
         var exitCode = await Program.Main(args);
 
         exitCode.Should().Be((int)ExitCode.InvalidInput);
     }
 
-    [Theory(DisplayName = "--from больше или равен --to -> exit code 2")]
-    [InlineData("2026-01-01", "2026-01-01")]
+    [Theory(DisplayName = "--from больше --to -> exit code 2")]
+    [InlineData("2026-01-02", "2026-01-01")]
+    [InlineData("2026-02-01", "2026-01-01")]
     [InlineData("2027-01-01", "2026-01-01")]
     public async Task FromNotBeforeToExitsWithTwo(string from, string to)
     {
-        var args = new string[] { "--path", "exampleName", "--output-format", "json", "--from", $"{from}", "--to", $"{to}" };
+        var args = new string[] { "--path", $"{_examplePath}", "--output-format", "json", "--from", $"{from}", "--to", $"{to}" };
         var exitCode = await Program.Main(args);
 
         exitCode.Should().Be((int)ExitCode.InvalidInput);
@@ -52,7 +58,7 @@ public class CliValidationTest
     public async Task OutputExtensionMismatchExitsWithTwo()
     {
         var outputPath = "report.md";
-        var args = new string[] { "--path", "exampleName", "--output-format", "json", "--output-path", $"{outputPath}" };
+        var args = new string[] { "--path", $"{_examplePath}", "--output-format", "json", "--output-path", $"{outputPath}" };
         var exitCode = await Program.Main(args);
 
         exitCode.Should().Be((int)ExitCode.InvalidInput);

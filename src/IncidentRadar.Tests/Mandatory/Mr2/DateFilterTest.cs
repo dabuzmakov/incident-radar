@@ -26,6 +26,7 @@ public class DateFilterTest
         var result = await GetResult(fileName);
 
         result.TotalRead.Should().Be(count);
+        result.Statistics.RequestsCount.Should().Be(count);
     }
 
     [Fact(DisplayName = "Только --from: открытая правая граница")]

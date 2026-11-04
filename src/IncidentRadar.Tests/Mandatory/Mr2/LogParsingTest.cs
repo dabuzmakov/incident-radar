@@ -2,6 +2,7 @@ using FluentAssertions;
 using IncidentRadar.App;
 using IncidentRadar.App.Analysis;
 using IncidentRadar.App.Logging;
+using System.Net;
 
 namespace IncidentRadar.Tests.Mandatory.Mr2;
 
@@ -18,7 +19,24 @@ public class LogParsingTest
     [Fact(DisplayName = "Эталонная строка разбирается на корректные поля")]
     public void ReferenceLineIsParsedCorrectly()
     {
-        _app.LogParser.TryParse(_referenceLog, out _).Should().BeTrue();
+        var resukt = _app.LogParser.TryParse(_referenceLog, out var entry);
+
+        resukt.Should().BeTrue();
+
+        entry.RemoteAddress.Should().Be(IPAddress.Parse("91.234.194.89"));
+        entry.RemoteUser.Should().BeNull();
+
+        entry.TimeLocal.Should().Be(new DateTimeOffset(2025, 3, 1, 0, 10, 2, TimeSpan.Zero));
+        entry.TimeLocal.Offset.Should().Be(TimeSpan.Zero);
+
+        entry.Request.Method.Method.Should().Be("GET");
+        entry.Request.Resource.Should().Be("/health");
+        entry.Request.Protocol.Should().Be("HTTP/1.1");
+
+        entry.HttpStatus.Should().Be(HttpStatusCode.NotModified);
+        entry.ResponseSize.Should().Be(0);
+        entry.Referer.Should().Be("https://www.tbank.ru/");
+        entry.UserAgent.Should().Be("Debian APT-HTTP/1.3 (2.6.1)");
     }
 
     [Fact(DisplayName = "Метод, ресурс и протокол разбираются в три отдельных поля")]
@@ -52,6 +70,8 @@ public class LogParsingTest
 
         result.TotalRead.Should().Be(13);
         result.MalformedCount.Should().Be(6);
+        result.Statistics.RequestsCount.Should().Be(7);
+
         fakeLogger.Warnings.Should().HaveCount(6);
         fakeLogger.Errors.Should().BeEmpty();
     }
