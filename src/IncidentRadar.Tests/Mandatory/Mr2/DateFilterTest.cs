@@ -1,4 +1,5 @@
 using FluentAssertions;
+using IncidentRadar.App;
 using IncidentRadar.App.Analysis;
 
 namespace IncidentRadar.Tests.Mandatory.Mr2;
@@ -6,6 +7,7 @@ namespace IncidentRadar.Tests.Mandatory.Mr2;
 /// <summary>Обязательные тесты: фильтрация по датам.</summary>
 public class DateFilterTest
 {
+    private static readonly AppComposer _app = new();
     private static readonly string _samplesDirectory
         = Path.Combine(AppContext.BaseDirectory, "samples/logs");
     private static readonly Task<AnalysisResult> _firstMarResult
@@ -36,7 +38,7 @@ public class DateFilterTest
             From: new DateOnly(2025, 03, 02)
         );
 
-        var resultWithFrom = await LogAnalyzer.AnalyzeAsync(options);
+        var resultWithFrom = await _app.Analyzer.AnalyzeAsync(options);
         var targetFileResult = await _secondMarResult;
 
         resultWithFrom.Statistics.RequestsCount
@@ -53,7 +55,7 @@ public class DateFilterTest
             To: new DateOnly(2025, 03, 01)
         );
 
-        var resultWithTo = await LogAnalyzer.AnalyzeAsync(options);
+        var resultWithTo = await _app.Analyzer.AnalyzeAsync(options);
         var targetFileResult = await _firstMarResult;
 
         resultWithTo.Statistics.RequestsCount
@@ -71,7 +73,7 @@ public class DateFilterTest
             To: new DateOnly(2025, 03, 02)
         );
 
-        var result = await LogAnalyzer.AnalyzeAsync(options);
+        var result = await _app.Analyzer.AnalyzeAsync(options);
         var firstFileResult = await _firstMarResult;
         var secondFileResult = await _secondMarResult;
 
@@ -89,6 +91,6 @@ public class DateFilterTest
             OutputFormat: "json"
         );
 
-        return await LogAnalyzer.AnalyzeAsync(options);
+        return await _app.Analyzer.AnalyzeAsync(options);
     }
 }

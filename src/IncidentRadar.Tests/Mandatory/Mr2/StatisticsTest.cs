@@ -1,4 +1,5 @@
 using FluentAssertions;
+using IncidentRadar.App;
 using IncidentRadar.App.Analysis;
 using IncidentRadar.App.Analysis.Statistics;
 using System.Net;
@@ -8,6 +9,8 @@ namespace IncidentRadar.Tests.Mandatory.Mr2;
 /// <summary>Обязательные тесты: подсчёт статистики.</summary>
 public class StatisticsTest
 {
+    private static readonly AppComposer _app = new();
+
     private static readonly string _samplesDirectory
         = Path.Combine(AppContext.BaseDirectory, "samples/logs");
 
@@ -59,7 +62,7 @@ public class StatisticsTest
             OutputFormat: "json"
         );
 
-        var result = await LogAnalyzer.AnalyzeAsync(options);
+        var result = await _app.Analyzer.AnalyzeAsync(options);
 
         return result.Statistics;
     }

@@ -2,5 +2,5 @@
 
 public interface ISourceReader
 {
-    IAsyncEnumerable<string> ReadAsync();
+    IAsyncEnumerable<string> ReadAsync(IReadOnlyList<LogSource> sources);
 }

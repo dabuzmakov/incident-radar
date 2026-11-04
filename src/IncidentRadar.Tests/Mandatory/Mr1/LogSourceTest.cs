@@ -1,13 +1,15 @@
 using FluentAssertions;
+using IncidentRadar.App;
 using IncidentRadar.App.Analysis;
 using IncidentRadar.App.CLI;
-using IncidentRadar.App.Sources.Resolving;
 
 namespace IncidentRadar.Tests.Mandatory.Mr1;
 
 /// <summary>Обязательные тесты: источники логов.</summary>
 public class LogSourceTest
 {
+    private static readonly AppComposer _app = new();
+
     private static readonly string _samplesDirectory
         = Path.Combine(AppContext.BaseDirectory, "samples/logs");
 
@@ -27,7 +29,7 @@ public class LogSourceTest
             OutputFormat: "json"
         );
 
-        var result = await LogAnalyzer.AnalyzeAsync(options);
+        var result = await _app.Analyzer.AnalyzeAsync(options);
 
         result.TotalRead.Should().BeGreaterThan(0);
     }
@@ -44,7 +46,7 @@ public class LogSourceTest
     public void ReadsAllFilesMatchingGlob(string[] fileNames, string mask)
     {
         var path = Path.Combine(_samplesDirectory, mask);
-        var sources = SourceResolver.GetSources(path);
+        var sources = _app.SourceResolver.GetSources(path);
 
         var names = sources.Select(source => Path.GetFileName(source.Path));
         names.Should().BeEquivalentTo(fileNames);
@@ -59,7 +61,7 @@ public class LogSourceTest
             OutputFormat: "json"
         );
 
-        var result = await LogAnalyzer.AnalyzeAsync(options);
+        var result = await _app.Analyzer.AnalyzeAsync(options);
 
         result.TotalRead.Should().BeGreaterThan(0);
     }

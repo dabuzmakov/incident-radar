@@ -6,8 +6,6 @@ using IncidentRadar.App.Parsing;
 using IncidentRadar.App.Sources.Opening;
 using IncidentRadar.App.Sources.Reading;
 using IncidentRadar.App.Sources.Resolving;
-using System.Text;
-
 namespace IncidentRadar.App;
 
 public class AppComposer
@@ -20,18 +18,19 @@ public class AppComposer
         };
 
     public ILogger Logger { get; }
-
+    public ISourceResolver SourceResolver { get; }
+    public ILogParser LogParser { get; }
+    public ISourceReader Reader { get; }
     public CommandParser CommandParser { get; }
-
     public LogAnalyzer Analyzer { get; }
 
     public AppComposer(
         ILogger? logger = null,
         ILogParser? parser = null,
-        ISourceResolver? resolver = null)
+        ISourceResolver? resolver = null,
+        ISourceReader reader = null,
+        Func<IStatisticsCollector>? collectorFactory = null)
     {
-        Logger = logger ?? new ConsoleLogger();
-
         CommandParser = new CommandParser(
             new OptionsValidator(_supportedFormats));
 
@@ -39,11 +38,16 @@ public class AppComposer
             new FileSourceOpener(),
             new UrlSourceOpener());
 
+        Logger = logger ?? new ConsoleLogger();
+        SourceResolver = resolver ?? new SourceResolver();
+        LogParser = parser ?? new LogParser();
+        Reader = reader ?? new SourceReader(openerFactory);
+
         Analyzer = new LogAnalyzer(
-            parser: parser ?? new LogParser(),
-            readerFactory: sources => new SourceReader(sources, openerFactory),
+            parser: LogParser,
+            reader: Reader,
             collectorFactory: () => new StatisticsCollector(),
-            resolver: resolver ?? new SourceResolver(),
+            resolver: SourceResolver,
             logger: Logger);
     }
 }

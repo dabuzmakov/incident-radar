@@ -1,7 +1,6 @@
 ﻿using IncidentRadar.App.Analysis.Statistics;
 using IncidentRadar.App.Logging;
 using IncidentRadar.App.Parsing;
-using IncidentRadar.App.Sources;
 using IncidentRadar.App.Sources.Reading;
 using IncidentRadar.App.Sources.Resolving;
 
@@ -12,18 +11,18 @@ public class LogAnalyzer
     private readonly ILogParser _parser;
     private readonly ILogger _logger;
     private readonly ISourceResolver _resolver;
-    private readonly Func<IReadOnlyList<LogSource>, ISourceReader> _readerFactory;
+    private readonly ISourceReader _reader;
     private readonly Func<IStatisticsCollector> _collectorFactory;
 
     public LogAnalyzer(
        ILogParser parser,
-       Func<IReadOnlyList<LogSource>, ISourceReader> readerFactory,
+       ISourceReader reader,
        Func<IStatisticsCollector> collectorFactory,
        ISourceResolver resolver,
        ILogger logger)
     {
         _parser = parser;
-        _readerFactory = readerFactory;
+        _reader = reader;
         _collectorFactory = collectorFactory;
         _resolver = resolver;
         _logger = logger;
@@ -32,12 +31,11 @@ public class LogAnalyzer
     public async Task<AnalysisResult> AnalyzeAsync(AnalysisOptions options)
     {
         var sources = _resolver.GetSources(options.Path);
-        var reader = _readerFactory(sources);
         var collector = _collectorFactory();
 
         var (totalRead, malformedCount) = (0, 0);
 
-        await foreach (var line in reader.ReadAsync())
+        await foreach (var line in _reader.ReadAsync(sources))
         {
             totalRead++;
 

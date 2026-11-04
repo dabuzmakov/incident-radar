@@ -1,12 +1,14 @@
 using FluentAssertions;
+using IncidentRadar.App;
 using IncidentRadar.App.Analysis;
-using IncidentRadar.App.Parsing;
 
 namespace IncidentRadar.Tests.Mandatory.Mr2;
 
 /// <summary>Обязательные тесты: разбор строки лога.</summary>
 public class LogParsingTest
 {
+    private static readonly AppComposer _app = new();
+
     private static readonly string _samplesDirectory
         = Path.Combine(AppContext.BaseDirectory, "samples/logs");
     private static readonly string _referenceLog
@@ -15,13 +17,13 @@ public class LogParsingTest
     [Fact(DisplayName = "Эталонная строка разбирается на корректные поля")]
     public void ReferenceLineIsParsedCorrectly()
     {
-        LogParser.TryParse(_referenceLog, out _).Should().BeTrue();
+        _app.LogParser.TryParse(_referenceLog, out _).Should().BeTrue();
     }
 
     [Fact(DisplayName = "Метод, ресурс и протокол разбираются в три отдельных поля")]
     public void RequestIsSplitIntoThreeFields()
     {
-        if (!LogParser.TryParse(_referenceLog, out var logEntry))
+        if (!_app.LogParser.TryParse(_referenceLog, out var logEntry))
         {
             Assert.Fail();
         }
@@ -42,7 +44,7 @@ public class LogParsingTest
             OutputFormat: "json"
         );
 
-        var result = await LogAnalyzer.AnalyzeAsync(options);
+        var result = await _app.Analyzer.AnalyzeAsync(options);
 
         result.TotalRead.Should().Be(13);
         result.MalformedCount.Should().Be(6);

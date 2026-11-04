@@ -5,20 +5,16 @@ namespace IncidentRadar.App.Sources.Reading;
 
 public class SourceReader : ISourceReader
 {
-    private readonly IReadOnlyList<LogSource> _sources;
     private readonly SourceOpenerFactory _openerFactory;
 
-    public SourceReader(
-        IReadOnlyList<LogSource> sources, 
-        SourceOpenerFactory openerFactory)
+    public SourceReader(SourceOpenerFactory openerFactory)
     {
-        _sources = sources;
         _openerFactory = openerFactory;
     }
 
-    public async IAsyncEnumerable<string> ReadAsync()
+    public async IAsyncEnumerable<string> ReadAsync(IReadOnlyList<LogSource> sources)
     {
-        foreach (var source in _sources)
+        foreach (var source in sources)
         {
             await foreach (var line in ReadSource(source))
             {
@@ -59,7 +55,7 @@ public class SourceReader : ISourceReader
         try
         {
             var opener = _openerFactory.GetOpener(source.Type);
-            using var stream = await opener.OpenAsync(source);
+            var stream = await opener.OpenAsync(source);
 
             return new StreamReader(stream);
         }
