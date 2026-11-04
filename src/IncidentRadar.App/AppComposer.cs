@@ -21,6 +21,7 @@ public class AppComposer
     public ISourceResolver SourceResolver { get; }
     public ILogParser LogParser { get; }
     public ISourceReader Reader { get; }
+    public Func<IStatisticsCollector> CollectorFactory { get; }
     public CommandParser CommandParser { get; }
     public LogAnalyzer Analyzer { get; }
 
@@ -28,7 +29,7 @@ public class AppComposer
         ILogger? logger = null,
         ILogParser? parser = null,
         ISourceResolver? resolver = null,
-        ISourceReader reader = null,
+        ISourceReader? reader = null,
         Func<IStatisticsCollector>? collectorFactory = null)
     {
         CommandParser = new CommandParser(
@@ -42,11 +43,12 @@ public class AppComposer
         SourceResolver = resolver ?? new SourceResolver();
         LogParser = parser ?? new LogParser();
         Reader = reader ?? new SourceReader(openerFactory);
+        CollectorFactory = collectorFactory ?? (() => new StatisticsCollector());
 
         Analyzer = new LogAnalyzer(
             parser: LogParser,
             reader: Reader,
-            collectorFactory: () => new StatisticsCollector(),
+            collectorFactory: CollectorFactory,
             resolver: SourceResolver,
             logger: Logger);
     }

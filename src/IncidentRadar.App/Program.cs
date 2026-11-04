@@ -41,4 +41,4 @@ public class Program
             return (int)ExitCode.InternalError;
         }
     }
-}   
+}

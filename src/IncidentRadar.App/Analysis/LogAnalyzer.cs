@@ -30,7 +30,7 @@ public class LogAnalyzer
 
     public async Task<AnalysisResult> AnalyzeAsync(AnalysisOptions options)
     {
-        var sources = _resolver.GetSources(options.Path);
+        var sources = _resolver.GetSources(options.Path!);
         var collector = _collectorFactory();
 
         var (totalRead, malformedCount) = (0, 0);

@@ -1,6 +1,7 @@
 using FluentAssertions;
 using IncidentRadar.App;
 using IncidentRadar.App.Analysis;
+using IncidentRadar.App.Logging;
 
 namespace IncidentRadar.Tests.Mandatory.Mr2;
 
@@ -38,15 +39,20 @@ public class LogParsingTest
     [Fact(DisplayName = "Битая строка пропускается с warning'ом, программа не падает")]
     public async Task MalformedLineIsSkippedWithWarning()
     {
+        var fakeLogger = new FakeLogger();
+        var app = new AppComposer(logger: fakeLogger);
+
         var options = new AnalysisOptions
         (
             Path: Path.Combine(_samplesDirectory, "malformed.log"),
             OutputFormat: "json"
         );
 
-        var result = await _app.Analyzer.AnalyzeAsync(options);
+        var result = await app.Analyzer.AnalyzeAsync(options);
 
         result.TotalRead.Should().Be(13);
         result.MalformedCount.Should().Be(6);
+        fakeLogger.Warnings.Should().HaveCount(6);
+        fakeLogger.Errors.Should().BeEmpty();
     }
 }

@@ -14,13 +14,19 @@ public class OptionsValidator
     public IEnumerable<string> Validate(AnalysisOptions options)
     {
         foreach (var error in ValidateRequiredOptions(options))
+        {
             yield return error;
+        }
 
         foreach (var error in ValidateOutputPath(options))
+        {
             yield return error;
+        }
 
         foreach (var error in ValidateDates(options))
+        {
             yield return error;
+        }
     }
 
     private IEnumerable<string> ValidateRequiredOptions(AnalysisOptions options)
