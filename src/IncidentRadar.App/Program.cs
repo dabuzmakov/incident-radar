@@ -27,6 +27,7 @@ public class Program
         try
         {
             var result = await app.Analyzer.AnalyzeAsync(parseResult.Options!);
+            
 
             return (int)ExitCode.Success;
         }

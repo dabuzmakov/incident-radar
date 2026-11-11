@@ -6,6 +6,7 @@ namespace IncidentRadar.App.Analysis.Statistics;
 public class StatisticsCollector : IStatisticsCollector
 {
     private static readonly int _topResourcesCount = 10;
+    private readonly HashSet<string> _protocols = new();
     private readonly Dictionary<HttpStatusCode, int> _statusDistribution = new();
     private readonly Dictionary<string, int> _resourcesDistribution = new();
     private readonly Dictionary<long, int> _responseSizeDistribution = new();
@@ -15,6 +16,8 @@ public class StatisticsCollector : IStatisticsCollector
 
     public void Add(LogEntry entry)
     {
+        _protocols.Add(entry.Request.Protocol);
+
         var (responseSize, status, resource)
             = (entry.ResponseSize, entry.HttpStatus, entry.Request.Resource);
 
@@ -43,6 +46,7 @@ public class StatisticsCollector : IStatisticsCollector
                 .ThenBy(pair => pair.Key, StringComparer.Ordinal)
                 .Take(_topResourcesCount)
                 .ToList(),
+            Protocols: _protocols,
             AverageResponseSize: _requestsCount != 0
                 ? (_totalResponseSize / (double)_requestsCount)
                 : 0,
