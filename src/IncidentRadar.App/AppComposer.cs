@@ -3,6 +3,7 @@ using IncidentRadar.App.Analysis.Statistics;
 using IncidentRadar.App.CLI;
 using IncidentRadar.App.Logging;
 using IncidentRadar.App.Parsing;
+using IncidentRadar.App.Reports;
 using IncidentRadar.App.Sources.Opening;
 using IncidentRadar.App.Sources.Reading;
 using IncidentRadar.App.Sources.Resolving;
@@ -21,6 +22,7 @@ public class AppComposer
     public ISourceResolver SourceResolver { get; }
     public ILogParser LogParser { get; }
     public ISourceReader Reader { get; }
+    public IReportBuilderFactory ReportBuilderFactory { get; }
     public Func<IStatisticsCollector> CollectorFactory { get; }
     public CommandParser CommandParser { get; }
     public LogAnalyzer Analyzer { get; }
@@ -39,11 +41,17 @@ public class AppComposer
             new FileSourceOpener(),
             new UrlSourceOpener());
 
+        var reportBuilderFactory = new ReportBuilderFactory(
+            new JsonReportBuilder(),
+            new MarkdownReportBuilder()
+            );
+
         Logger = logger ?? new ConsoleLogger();
         SourceResolver = resolver ?? new SourceResolver();
         LogParser = parser ?? new LogParser();
         Reader = reader ?? new SourceReader(openerFactory);
         CollectorFactory = collectorFactory ?? (() => new StatisticsCollector());
+        ReportBuilderFactory = reportBuilderFactory;
 
         Analyzer = new LogAnalyzer(
             parser: LogParser,

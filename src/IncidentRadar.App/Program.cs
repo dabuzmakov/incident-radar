@@ -26,19 +26,23 @@ public class Program
 
         try
         {
+            var format = parseResult.Options!.OutputFormat;
+            var reportBuilder = app.ReportBuilderFactory.GetReportBuilder(format!);
+
             var result = await app.Analyzer.AnalyzeAsync(parseResult.Options!);
-            
+
+            var report = reportBuilder.CreateReport(result);
 
             return (int)ExitCode.Success;
         }
         catch (SourceException exсeption)
         {
-            app.Logger.LogError($"ошибка источника, {exсeption.Message}");
+            app.Logger.LogError($"Ошибка источника, {exсeption.Message}");
             return (int)ExitCode.InvalidInput;
         }
         catch (Exception exсeption)
         {
-            app.Logger.LogError($"внутренняя ошибка, {exсeption.Message}");
+            app.Logger.LogError($"Внутренняя ошибка, {exсeption.Message}");
             return (int)ExitCode.InternalError;
         }
     }
