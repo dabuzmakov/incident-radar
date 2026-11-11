@@ -7,6 +7,7 @@ using IncidentRadar.App.Reports;
 using IncidentRadar.App.Sources.Opening;
 using IncidentRadar.App.Sources.Reading;
 using IncidentRadar.App.Sources.Resolving;
+using IncidentRadar.App.UI;
 namespace IncidentRadar.App;
 
 public class AppComposer
@@ -22,6 +23,8 @@ public class AppComposer
     public ISourceResolver SourceResolver { get; }
     public ILogParser LogParser { get; }
     public ISourceReader Reader { get; }
+    public IApplicationUI UI { get; }
+    public IReportSaver ReportSaver { get; }
     public IReportBuilderFactory ReportBuilderFactory { get; }
     public Func<IStatisticsCollector> CollectorFactory { get; }
     public CommandParser CommandParser { get; }
@@ -32,7 +35,9 @@ public class AppComposer
         ILogParser? parser = null,
         ISourceResolver? resolver = null,
         ISourceReader? reader = null,
-        Func<IStatisticsCollector>? collectorFactory = null)
+        Func<IStatisticsCollector>? collectorFactory = null,
+        IApplicationUI? ui = null,
+        IReportSaver? saver = null)
     {
         CommandParser = new CommandParser(
             new OptionsValidator(_supportedFormats));
@@ -46,6 +51,8 @@ public class AppComposer
             new MarkdownReportBuilder()
             );
 
+        UI = ui ?? new ConsoleUI();
+        ReportSaver = saver ?? new FileReportSaver();
         Logger = logger ?? new ConsoleLogger();
         SourceResolver = resolver ?? new SourceResolver();
         LogParser = parser ?? new LogParser();
