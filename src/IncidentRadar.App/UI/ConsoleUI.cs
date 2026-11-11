@@ -2,9 +2,9 @@
 
 public class ConsoleUI : IApplicationUI
 {
-    public bool ConfirmOverwrite()
+    public bool ConfirmOverwrite(string path)
     {
-        WriteLine("Файл уже существует, перезаписать? [y/N]: ");
+        WriteLine($"Файл \"{path}\" уже существует, перезаписать? [y/N]: ");
 
         var answer = Console.ReadLine();
 
