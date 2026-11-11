@@ -8,10 +8,10 @@ public class FileReportSaver : IReportSaver
     {
         var mode = overwrite ? FileMode.Create : FileMode.CreateNew;
 
-    using var stream = new FileStream(path, mode, FileAccess.Write);
-    using var writer = new StreamWriter(stream);
+        using var stream = new FileStream(path, mode, FileAccess.Write);
+        using var writer = new StreamWriter(stream);
 
-    writer.Write(report);
+        writer.Write(report);
     }
 
     public string PreparePath(string outputPath)

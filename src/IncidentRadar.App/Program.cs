@@ -26,7 +26,7 @@ public class Program
 
         try
         {
-           return await RunAsync(app, parseResult.Options!);
+            return await RunAsync(app, parseResult.Options!);
         }
         catch (SourceException exсeption)
         {
@@ -55,7 +55,9 @@ public class Program
             path = app.ReportSaver.PreparePath(path);
 
             if (File.Exists(path) && !app.UI.ConfirmOverwrite(path))
+            {
                 return (int)ExitCode.InvalidInput;
+            }
 
             overwrite = File.Exists(path);
         }
@@ -65,9 +67,13 @@ public class Program
         var report = builder.CreateReport(result);
 
         if (path is null)
+        {
             app.UI.WriteLine(report);
+        }
         else
+        {
             app.ReportSaver.Save(report, path, overwrite);
+        }
 
         return (int)ExitCode.Success;
     }
