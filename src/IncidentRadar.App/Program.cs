@@ -45,7 +45,7 @@ public class Program
         }
     }
 
-    private static async Task<int> RunAsync(AppComposer app, AnalysisOptions options)
+    public static async Task<int> RunAsync(AppComposer app, AnalysisOptions options)
     {
         var outputPath = options.OutputPath;
         var overwrite = false;

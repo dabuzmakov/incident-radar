@@ -23,7 +23,7 @@ public class JsonReportBuilder : IReportBuilder
             totalRequestsCount = statistics.RequestsCount,
             responseSizeInBytes = new
             {
-                average = statistics.AverageResponseSize,
+                average = Math.Round(statistics.AverageResponseSize, 2),
                 max = statistics.MaxResponseSize,
                 p95 = statistics.P95responseSize
             },

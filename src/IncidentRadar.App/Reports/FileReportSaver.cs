@@ -36,6 +36,10 @@ public class FileReportSaver : IReportSaver
 
             return fullPath;
         }
+        catch (OutputException)
+        {
+            throw;
+        }
         catch (Exception exception)
         {
             throw new OutputException(
