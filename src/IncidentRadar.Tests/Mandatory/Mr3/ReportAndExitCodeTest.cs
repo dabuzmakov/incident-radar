@@ -213,7 +213,7 @@ public class ReportAndExitCodeTest
 
     [Theory(DisplayName = "Некорректное использование -> exit code 2, а не 1")]
     [MemberData(nameof(InvalidArguments))]
-    public async void MisuseExitsWithTwoNotOne(string[] args)
+    public async Task MisuseExitsWithTwoNotOne(string[] args)
     {
         var code = await Program.Main(args);
 
