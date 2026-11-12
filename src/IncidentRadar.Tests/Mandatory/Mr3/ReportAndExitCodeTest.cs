@@ -201,7 +201,7 @@ public class ReportAndExitCodeTest
             logger: new FakeLogger()
             );
 
-        var path = name[0..8] == "https://" 
+        var path = name[0..8] == "https://"
             ? name
             : Path.Combine(_samplesDirectory, name);
 
