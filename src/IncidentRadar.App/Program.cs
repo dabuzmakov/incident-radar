@@ -47,32 +47,32 @@ public class Program
 
     private static async Task<int> RunAsync(AppComposer app, AnalysisOptions options)
     {
-        var path = options.OutputPath;
+        var outputPath = options.OutputPath;
         var overwrite = false;
 
-        if (path is not null)
+        if (outputPath is not null)
         {
-            path = app.ReportSaver.PreparePath(path);
+            outputPath = app.ReportSaver.PreparePath(outputPath);
 
-            if (File.Exists(path) && !app.UI.ConfirmOverwrite(path))
+            if (File.Exists(outputPath) && !app.UI.ConfirmOverwrite(outputPath))
             {
                 return (int)ExitCode.InvalidInput;
             }
 
-            overwrite = File.Exists(path);
+            overwrite = File.Exists(outputPath);
         }
 
         var result = await app.Analyzer.AnalyzeAsync(options);
         var builder = app.ReportBuilderFactory.GetReportBuilder(options.OutputFormat!);
         var report = builder.CreateReport(result);
 
-        if (path is null)
+        if (outputPath is null)
         {
             app.UI.WriteLine(report);
         }
         else
         {
-            app.ReportSaver.Save(report, path, overwrite);
+            app.ReportSaver.Save(report, outputPath, overwrite);
         }
 
         return (int)ExitCode.Success;

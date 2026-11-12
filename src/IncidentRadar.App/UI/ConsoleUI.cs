@@ -4,7 +4,7 @@ public class ConsoleUI : IApplicationUI
 {
     public bool ConfirmOverwrite(string path)
     {
-        WriteLine($"Файл \"{path}\" уже существует, перезаписать? [y/N]: ");
+        Write($"Файл \"{path}\" уже существует, перезаписать? [y/N]: ");
 
         var answer = Console.ReadLine();
 
@@ -14,6 +14,9 @@ public class ConsoleUI : IApplicationUI
             StringComparison.OrdinalIgnoreCase);
 
     }
+
+    public void Write(string text)
+        => Console.Write(text);
 
     public void WriteLine(string text)
         => Console.WriteLine(text);
