@@ -1,4 +1,6 @@
-﻿namespace IncidentRadar.App.UI;
+﻿using IncidentRadar.App.UI;
+
+namespace IncidentRadar.Tests.Fakes;
 
 public class FakeUI : IApplicationUI
 {
