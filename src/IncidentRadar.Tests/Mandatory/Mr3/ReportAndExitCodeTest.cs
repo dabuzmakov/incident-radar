@@ -3,10 +3,10 @@ using IncidentRadar.App;
 using IncidentRadar.App.Analysis;
 using IncidentRadar.App.Analysis.Statistics;
 using IncidentRadar.App.CLI;
-using IncidentRadar.App.Logging;
+using IncidentRadar.App.Exceptions;
 using IncidentRadar.App.Reports;
 using IncidentRadar.App.Sources;
-using IncidentRadar.App.UI;
+using IncidentRadar.Tests.Fakes;
 using System.Net;
 using System.Text.Json;
 
@@ -179,7 +179,7 @@ public class ReportAndExitCodeTest
                 path: path,
                 overwrite: false);
 
-            save.Should().Throw<IOException>();
+            save.Should().Throw<OutputException>();
 
             File.ReadAllText(path)
                 .Should().Be("исходный отчет");

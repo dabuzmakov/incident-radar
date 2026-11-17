@@ -12,20 +12,21 @@ public class Program
         Console.InputEncoding = Encoding.UTF8;
 
         var app = new AppComposer();
-        var parseResult = app.CommandParser.Parse(args);
-
-        if (!parseResult.IsSuccess)
-        {
-            foreach (var error in parseResult.Errors)
-            {
-                app.Logger.LogError(error);
-            }
-
-            return (int)ExitCode.InvalidInput;
-        }
 
         try
         {
+            var parseResult = app.CommandParser.Parse(args);
+
+            if (!parseResult.IsSuccess)
+            {
+                foreach (var error in parseResult.Errors)
+                {
+                    app.Logger.LogError(error);
+                }
+
+                return (int)ExitCode.InvalidInput;
+            }
+
             return await RunAsync(app, parseResult.Options!);
         }
         catch (SourceException exсeption)

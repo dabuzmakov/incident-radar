@@ -23,9 +23,14 @@ public class SourceResolver : ISourceResolver
 
             return ResolveFile(path);
         }
-        catch (Exception exception)
+        catch (Exception exception) when (
+            exception is ArgumentException
+            or IOException
+            or UnauthorizedAccessException)
         {
-            throw new SourceException(exception.Message, exception);
+            throw new SourceException(
+                $"Не удалось определить источники \"{path}\": {exception.Message}",
+                exception);
         }
     }
 

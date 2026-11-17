@@ -35,7 +35,7 @@ public class SourceReader : ISourceReader
             {
                 line = await reader.ReadLineAsync();
             }
-            catch (Exception exception)
+            catch (IOException exception)
             {
                 throw new SourceException(
                     $"Не удалось прочитать источник {source.Path}", exception);
@@ -52,17 +52,22 @@ public class SourceReader : ISourceReader
 
     private async Task<StreamReader> OpenReaderAsync(LogSource source)
     {
+        var opener = _openerFactory.GetOpener(source.Type);
+
         try
         {
-            var opener = _openerFactory.GetOpener(source.Type);
             var stream = await opener.OpenAsync(source);
-
             return new StreamReader(stream);
         }
-        catch (Exception exception)
+        catch (Exception exception) when (
+            exception is IOException
+                or UnauthorizedAccessException
+                or HttpRequestException
+                or OperationCanceledException { InnerException: TimeoutException })
         {
             throw new SourceException(
-                $"Не удалось открыть источник {source.Path}", exception);
+                $"Не удалось открыть источник \"{source.Path}\": {exception.Message}",
+                exception);
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace IncidentRadar.App.Logging;
+﻿using IncidentRadar.App.Logging;
+
+namespace IncidentRadar.Tests.Fakes;
 
 public class FakeLogger : ILogger
 {

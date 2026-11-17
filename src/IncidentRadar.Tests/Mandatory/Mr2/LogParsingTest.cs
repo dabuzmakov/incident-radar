@@ -1,7 +1,7 @@
 using FluentAssertions;
 using IncidentRadar.App;
 using IncidentRadar.App.Analysis;
-using IncidentRadar.App.Logging;
+using IncidentRadar.Tests.Fakes;
 using System.Net;
 
 namespace IncidentRadar.Tests.Mandatory.Mr2;

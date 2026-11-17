@@ -10,7 +10,9 @@ public static class HttpMethodExtensions
             {
                 result = HttpMethod.Parse(methodName);
             }
-            catch (ArgumentException)
+            catch (Exception exception) when (
+                exception is ArgumentException
+                or FormatException)
             {
                 result = null;
                 return false;

@@ -30,6 +30,9 @@ public class StatisticsTest
     {
         var statistics = await GetStatistics("access-2025-03-01.log");
 
+        statistics.TopResources.Count
+            .Should().Be(10);
+
         statistics.TopResources
             .Should().BeInDescendingOrder(pair => pair.Value);
     }

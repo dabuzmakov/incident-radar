@@ -6,12 +6,25 @@ public class FileReportSaver : IReportSaver
 {
     public void Save(string report, string path, bool overwrite)
     {
-        var mode = overwrite ? FileMode.Create : FileMode.CreateNew;
+        try
+        {
+            var mode = overwrite ? FileMode.Create : FileMode.CreateNew;
 
-        using var stream = new FileStream(path, mode, FileAccess.Write);
-        using var writer = new StreamWriter(stream);
+            using var stream = new FileStream(path, mode, FileAccess.Write);
+            using var writer = new StreamWriter(stream);
 
-        writer.Write(report);
+            writer.Write(report);
+        }
+        catch (Exception exception) when (
+            exception is IOException
+            or UnauthorizedAccessException
+            or ArgumentException)
+        {
+            throw new OutputException(
+                $"Не удалось сохранить отчёт в \"{path}\": " +
+                exception.Message,
+                exception);
+        }
     }
 
     public string PreparePath(string outputPath)
@@ -36,14 +49,13 @@ public class FileReportSaver : IReportSaver
 
             return fullPath;
         }
-        catch (OutputException)
-        {
-            throw;
-        }
-        catch (Exception exception)
+        catch (Exception exception) when (
+            exception is ArgumentException
+            or IOException)
         {
             throw new OutputException(
-                $"Не удалось подготовить путь отчёта: {outputPath}",
+                $"Не удалось подготовить путь \"{outputPath}\": " +
+                exception.Message,
                 exception);
         }
     }
