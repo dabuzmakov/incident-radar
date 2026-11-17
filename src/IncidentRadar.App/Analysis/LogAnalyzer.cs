@@ -1,32 +1,67 @@
-﻿using IncidentRadar.App.Sources;
+﻿using IncidentRadar.App.Analysis.Statistics;
+using IncidentRadar.App.Logging;
+using IncidentRadar.App.Parsing;
+using IncidentRadar.App.Sources.Reading;
+using IncidentRadar.App.Sources.Resolving;
 
 namespace IncidentRadar.App.Analysis;
 
 public class LogAnalyzer
 {
-    private readonly AnalysisOptions _options;
+    private readonly ILogParser _parser;
+    private readonly ILogger _logger;
+    private readonly ISourceResolver _resolver;
+    private readonly ISourceReader _reader;
+    private readonly Func<IStatisticsCollector> _collectorFactory;
 
-    public LogAnalyzer(AnalysisOptions options)
+    public LogAnalyzer(
+       ILogParser parser,
+       ISourceReader reader,
+       Func<IStatisticsCollector> collectorFactory,
+       ISourceResolver resolver,
+       ILogger logger)
     {
-        _options = options;
+        _parser = parser;
+        _reader = reader;
+        _collectorFactory = collectorFactory;
+        _resolver = resolver;
+        _logger = logger;
     }
 
-    public async Task<AnalysisStatistics> AnalyzeAsync()
+    public async Task<AnalysisResult> AnalyzeAsync(AnalysisOptions options)
     {
-        var sources = SourceResolver.GetSources(_options.Path);
-        var reader = new SourceReader(sources);
+        var sources = _resolver.GetSources(options.Path!);
+        var collector = _collectorFactory();
 
-        var totalRead = 0;
+        var (totalRead, malformedCount) = (0, 0);
 
-        await foreach (var line in reader.ReadAsync())
+        await foreach (var line in _reader.ReadAsync(sources))
         {
             totalRead++;
+
+            if (!_parser.TryParse(line, out var logEntry))
+            {
+                malformedCount++;
+                _logger.LogWarning($"пропущена некорректная строка {totalRead}");
+                continue;
+            }
+
+            if (!logEntry.InBounds(options.From, options.To))
+            {
+                continue;
+            }
+
+            collector.Add(logEntry);
         }
 
-        return new AnalysisStatistics
+        return new AnalysisResult
         (
             Sources: sources,
-            TotalRead: totalRead
+            TotalRead: totalRead,
+            MalformedCount: malformedCount,
+            Statistics: collector.GetStatistics()
         );
     }
+
+
 }

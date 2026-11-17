@@ -1,26 +1,78 @@
+using FluentAssertions;
+using IncidentRadar.App;
+using IncidentRadar.App.Analysis;
+using IncidentRadar.App.Logging;
+using System.Net;
+
 namespace IncidentRadar.Tests.Mandatory.Mr2;
 
 /// <summary>Обязательные тесты: разбор строки лога.</summary>
 public class LogParsingTest
 {
-    [Fact(DisplayName = "Эталонная строка разбирается на корректные поля",
-          Skip = "MR2: реализуй тест и удали эту строку")]
+    private static readonly AppComposer _app = new();
+
+    private static readonly string _samplesDirectory
+        = Path.Combine(AppContext.BaseDirectory, "samples/logs");
+    private static readonly string _referenceLog
+        = "91.234.194.89 - - [01/Mar/2025:00:10:02 +0000] \"GET /health HTTP/1.1\" 304 0 \"https://www.tbank.ru/\" \"Debian APT-HTTP/1.3 (2.6.1)\"";
+
+    [Fact(DisplayName = "Эталонная строка разбирается на корректные поля")]
     public void ReferenceLineIsParsedCorrectly()
     {
-        Assert.Fail("Тест не реализован");
+        var resukt = _app.LogParser.TryParse(_referenceLog, out var entry);
+
+        resukt.Should().BeTrue();
+
+        entry.RemoteAddress.Should().Be(IPAddress.Parse("91.234.194.89"));
+        entry.RemoteUser.Should().BeNull();
+
+        entry.TimeLocal.Should().Be(new DateTimeOffset(2025, 3, 1, 0, 10, 2, TimeSpan.Zero));
+        entry.TimeLocal.Offset.Should().Be(TimeSpan.Zero);
+
+        entry.Request.Method.Method.Should().Be("GET");
+        entry.Request.Resource.Should().Be("/health");
+        entry.Request.Protocol.Should().Be("HTTP/1.1");
+
+        entry.HttpStatus.Should().Be(HttpStatusCode.NotModified);
+        entry.ResponseSize.Should().Be(0);
+        entry.Referer.Should().Be("https://www.tbank.ru/");
+        entry.UserAgent.Should().Be("Debian APT-HTTP/1.3 (2.6.1)");
     }
 
-    [Fact(DisplayName = "Метод, ресурс и протокол разбираются в три отдельных поля",
-          Skip = "MR2: реализуй тест и удали эту строку")]
+    [Fact(DisplayName = "Метод, ресурс и протокол разбираются в три отдельных поля")]
     public void RequestIsSplitIntoThreeFields()
     {
-        Assert.Fail("Тест не реализован");
+        if (!_app.LogParser.TryParse(_referenceLog, out var logEntry))
+        {
+            Assert.Fail();
+        }
+
+        var request = logEntry.Request;
+
+        request.Method.Method.Should().Be("GET");
+        request.Resource.Should().Be("/health");
+        request.Protocol.Should().Be("HTTP/1.1");
     }
 
-    [Fact(DisplayName = "Битая строка пропускается с warning'ом, программа не падает",
-          Skip = "MR2: реализуй тест и удали эту строку")]
-    public void MalformedLineIsSkippedWithWarning()
+    [Fact(DisplayName = "Битая строка пропускается с warning'ом, программа не падает")]
+    public async Task MalformedLineIsSkippedWithWarning()
     {
-        Assert.Fail("Тест не реализован");
+        var fakeLogger = new FakeLogger();
+        var app = new AppComposer(logger: fakeLogger);
+
+        var options = new AnalysisOptions
+        (
+            Path: Path.Combine(_samplesDirectory, "malformed.log"),
+            OutputFormat: "json"
+        );
+
+        var result = await app.Analyzer.AnalyzeAsync(options);
+
+        result.TotalRead.Should().Be(13);
+        result.MalformedCount.Should().Be(6);
+        result.Statistics.RequestsCount.Should().Be(7);
+
+        fakeLogger.Warnings.Should().HaveCount(6);
+        fakeLogger.Errors.Should().BeEmpty();
     }
 }

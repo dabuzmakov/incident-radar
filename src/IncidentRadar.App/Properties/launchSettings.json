@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "IncidentRadar.App": {
+      "commandName": "Project",
+      "commandLineArgs": "--path access-2025-03-0*.log --output-format json",
+      "workingDirectory": "../../samples/logs"
+    }
+  }
+}

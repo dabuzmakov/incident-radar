@@ -1,41 +1,43 @@
-using IncidentRadar.App.Analysis;
+using IncidentRadar.App;
 using IncidentRadar.App.CLI;
 using IncidentRadar.App.Exceptions;
+using System.Text;
 
 public class Program
 {
     public static async Task<int> Main(string[] args)
     {
-        var parseResult = CommandParser.Parse(args);
+        Console.OutputEncoding = Encoding.UTF8;
+        Console.InputEncoding = Encoding.UTF8;
+
+        var app = new AppComposer();
+
+        var parseResult = app.CommandParser.Parse(args);
 
         if (!parseResult.IsSuccess)
         {
             foreach (var error in parseResult.Errors)
-                Console.Error.WriteLine(error);
+            {
+                app.Logger.LogError(error);
+            }
 
             return (int)ExitCode.InvalidInput;
         }
 
         try
         {
-            var analyzer = new LogAnalyzer(parseResult.Options!);
-            var statistics = await analyzer.AnalyzeAsync();
-
-            Console.WriteLine($"Прочитано строк: {statistics.TotalRead}");
-
-            foreach (var source in statistics.Sources)
-                Console.WriteLine($"Источник: {source.Path}");
+            var result = await app.Analyzer.AnalyzeAsync(parseResult.Options!);
 
             return (int)ExitCode.Success;
         }
-        catch (SourceException exeption)
+        catch (SourceException exсeption)
         {
-            Console.Error.WriteLine($"Ошибка источника: {exeption.Message}");
+            app.Logger.LogError($"ошибка источника, {exсeption.Message}");
             return (int)ExitCode.InvalidInput;
         }
-        catch (Exception exeption)
+        catch (Exception exсeption)
         {
-            Console.Error.WriteLine($"Внутренняя ошибка: {exeption.Message}");
+            app.Logger.LogError($"внутренняя ошибка, {exсeption.Message}");
             return (int)ExitCode.InternalError;
         }
     }

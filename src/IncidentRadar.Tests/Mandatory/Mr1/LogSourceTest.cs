@@ -1,16 +1,19 @@
 using FluentAssertions;
+using IncidentRadar.App;
 using IncidentRadar.App.Analysis;
-using IncidentRadar.App.Sources;
+using IncidentRadar.App.CLI;
 
 namespace IncidentRadar.Tests.Mandatory.Mr1;
 
 /// <summary>Обязательные тесты: источники логов.</summary>
 public class LogSourceTest
 {
-    private static string _samplesDirectory
+    private static readonly AppComposer _app = new();
+
+    private static readonly string _samplesDirectory
         = Path.Combine(AppContext.BaseDirectory, "samples/logs");
 
-    private static string _sampleUrl 
+    private static readonly string _sampleUrl
         = "https://raw.githubusercontent.com/elastic/examples/master/Common%20Data%20Formats/nginx_logs/nginx_logs";
 
     [Theory(DisplayName = "Локальный файл читается")]
@@ -18,7 +21,7 @@ public class LogSourceTest
     [InlineData("access-2025-03-02.log")]
     public async Task ReadsLocalFile(string fileName)
     {
-        var file = Path.Combine(_samplesDirectory, $"{fileName}");
+        var file = Path.Combine(_samplesDirectory, fileName);
 
         var options = new AnalysisOptions
         (
@@ -26,10 +29,9 @@ public class LogSourceTest
             OutputFormat: "json"
         );
 
-        var analyzer = new LogAnalyzer(options);
-        var statistics = await analyzer.AnalyzeAsync();
+        var result = await _app.Analyzer.AnalyzeAsync(options);
 
-        statistics.TotalRead.Should().BeGreaterThan(0);
+        result.TotalRead.Should().BeGreaterThan(0);
     }
 
     public static TheoryData<string[], string> LogFiles = new()
@@ -44,7 +46,7 @@ public class LogSourceTest
     public void ReadsAllFilesMatchingGlob(string[] fileNames, string mask)
     {
         var path = Path.Combine(_samplesDirectory, mask);
-        var sources = SourceResolver.GetSources(path);
+        var sources = _app.SourceResolver.GetSources(path);
 
         var names = sources.Select(source => Path.GetFileName(source.Path));
         names.Should().BeEquivalentTo(fileNames);
@@ -59,10 +61,9 @@ public class LogSourceTest
             OutputFormat: "json"
         );
 
-        var analyzer = new LogAnalyzer(options);
-        var statistics = await analyzer.AnalyzeAsync();
+        var result = await _app.Analyzer.AnalyzeAsync(options);
 
-        statistics.TotalRead.Should().BeGreaterThan(0);
+        result.TotalRead.Should().BeGreaterThan(0);
     }
 
     [Fact(DisplayName = "URL вернул 404 -> exit code 2")]
@@ -72,6 +73,6 @@ public class LogSourceTest
         var args = new string[] { "--path", $"{badUrl}", "--output-format", "json" };
         var exitCode = await Program.Main(args);
 
-        exitCode.Should().Be(2);
+        exitCode.Should().Be((int)ExitCode.InvalidInput);
     }
 }
