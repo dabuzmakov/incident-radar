@@ -50,11 +50,15 @@ public class StatisticsTest
     [Fact(DisplayName = "Выбранный метод расчёта p95 зафиксирован и воспроизводим")]
     public async Task P95MethodIsDocumentedAndStable()
     {
+        var expectedP95 = 5657; // для access-2025-03-01.log
+
         var firstStatistics = await GetStatistics("access-2025-03-01.log");
         var secondStatistics = await GetStatistics("access-2025-03-01.log");
 
-        firstStatistics.P95responseSize
-            .Should().Be(secondStatistics.P95responseSize);
+        firstStatistics.P95responseSize.Should().Be(expectedP95);
+
+        secondStatistics.P95responseSize
+            .Should().Be(firstStatistics.P95responseSize);
     }
 
     private async Task<AnalysisStatistics> GetStatistics(string path)
